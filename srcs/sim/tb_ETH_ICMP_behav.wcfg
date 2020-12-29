@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_ETH_TOP_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_ETH_TOP" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="4836000fs"></ZoomStartTime>
+      <ZoomEndTime time="6366001fs"></ZoomEndTime>
+      <Cursor1Time time="5956000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="234"></NameColumnWidth>
+      <ValueColumnWidth column_width="110"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="82" />
+   <wvobject type="divider" fp_name="divider656">
+      <obj_property name="label">RX_ICMP</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/CLK_125M" type="logic">
+      <obj_property name="ElementShortName">CLK_125M</obj_property>
+      <obj_property name="ObjectShortName">CLK_125M</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/SYS_RST" type="logic">
+      <obj_property name="ElementShortName">SYS_RST</obj_property>
+      <obj_property name="ObjectShortName">SYS_RST</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/TRIG_TX_ICMP" type="logic">
+      <obj_property name="ElementShortName">TRIG_TX_ICMP</obj_property>
+      <obj_property name="ObjectShortName">TRIG_TX_ICMP</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/RGMII_RX_DATA" type="array">
+      <obj_property name="ElementShortName">RGMII_RX_DATA[7:0]</obj_property>
+      <obj_property name="ObjectShortName">RGMII_RX_DATA[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/RGMII_RX_VALID" type="logic">
+      <obj_property name="ElementShortName">RGMII_RX_VALID</obj_property>
+      <obj_property name="ObjectShortName">RGMII_RX_VALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/RGMII_RX_LAST" type="logic">
+      <obj_property name="ElementShortName">RGMII_RX_LAST</obj_property>
+      <obj_property name="ObjectShortName">RGMII_RX_LAST</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/RGMII_RX_USER" type="logic">
+      <obj_property name="ElementShortName">RGMII_RX_USER</obj_property>
+      <obj_property name="ObjectShortName">RGMII_RX_USER</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/RGMII_RX_READY" type="logic">
+      <obj_property name="ElementShortName">RGMII_RX_READY</obj_property>
+      <obj_property name="ObjectShortName">RGMII_RX_READY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/TRIG_TX_ARP" type="logic">
+      <obj_property name="ElementShortName">TRIG_TX_ARP</obj_property>
+      <obj_property name="ObjectShortName">TRIG_TX_ARP</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/PC_MAC" type="array">
+      <obj_property name="ElementShortName">PC_MAC[47:0]</obj_property>
+      <obj_property name="ObjectShortName">PC_MAC[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/PC_IP" type="array">
+      <obj_property name="ElementShortName">PC_IP[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PC_IP[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/ETH_ICMP_TVALID" type="logic">
+      <obj_property name="ElementShortName">ETH_ICMP_TVALID</obj_property>
+      <obj_property name="ObjectShortName">ETH_ICMP_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/ETH_ICMP_TREADY" type="logic">
+      <obj_property name="ElementShortName">ETH_ICMP_TREADY</obj_property>
+      <obj_property name="ObjectShortName">ETH_ICMP_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/ETH_ICMP_TLAST" type="logic">
+      <obj_property name="ElementShortName">ETH_ICMP_TLAST</obj_property>
+      <obj_property name="ObjectShortName">ETH_ICMP_TLAST</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/ETH_ICMP_TDATA" type="array">
+      <obj_property name="ElementShortName">ETH_ICMP_TDATA[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ETH_ICMP_TDATA[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/ETH_ICMP_TUSER" type="array">
+      <obj_property name="ElementShortName">ETH_ICMP_TUSER[31:0]</obj_property>
+      <obj_property name="ObjectShortName">ETH_ICMP_TUSER[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/icmp_current_state" type="array">
+      <obj_property name="ElementShortName">icmp_current_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_current_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/icmp_next_state" type="array">
+      <obj_property name="ElementShortName">icmp_next_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_next_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/o_trig_tx_icmp" type="logic">
+      <obj_property name="ElementShortName">o_trig_tx_icmp</obj_property>
+      <obj_property name="ObjectShortName">o_trig_tx_icmp</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/o_rx_data" type="array">
+      <obj_property name="ElementShortName">o_rx_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">o_rx_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/o_rx_user" type="array">
+      <obj_property name="ElementShortName">o_rx_user[31:0]</obj_property>
+      <obj_property name="ObjectShortName">o_rx_user[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/o_rx_valid" type="logic">
+      <obj_property name="ElementShortName">o_rx_valid</obj_property>
+      <obj_property name="ObjectShortName">o_rx_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/o_rx_last" type="logic">
+      <obj_property name="ElementShortName">o_rx_last</obj_property>
+      <obj_property name="ObjectShortName">o_rx_last</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/icmp_word_cnt" type="array">
+      <obj_property name="ElementShortName">icmp_word_cnt[7:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_word_cnt[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/flag_eth_header_over" type="logic">
+      <obj_property name="ElementShortName">flag_eth_header_over</obj_property>
+      <obj_property name="ObjectShortName">flag_eth_header_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/flag_ip_header_over" type="logic">
+      <obj_property name="ElementShortName">flag_ip_header_over</obj_property>
+      <obj_property name="ObjectShortName">flag_ip_header_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/flag_icmp_over" type="logic">
+      <obj_property name="ElementShortName">flag_icmp_over</obj_property>
+      <obj_property name="ObjectShortName">flag_icmp_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/flag_frame_err" type="logic">
+      <obj_property name="ElementShortName">flag_frame_err</obj_property>
+      <obj_property name="ObjectShortName">flag_frame_err</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_eth_type" type="array">
+      <obj_property name="ElementShortName">rx_eth_type[15:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_eth_type[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_eth_da_mac" type="array">
+      <obj_property name="ElementShortName">rx_eth_da_mac[47:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_eth_da_mac[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_eth_sa_mac" type="array">
+      <obj_property name="ElementShortName">rx_eth_sa_mac[47:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_eth_sa_mac[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_ip_idf" type="array">
+      <obj_property name="ElementShortName">rx_ip_idf[15:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_ip_idf[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_ip_vision" type="array">
+      <obj_property name="ElementShortName">rx_ip_vision[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_ip_vision[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_ip_ttl" type="array">
+      <obj_property name="ElementShortName">rx_ip_ttl[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_ip_ttl[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_ip_proto" type="array">
+      <obj_property name="ElementShortName">rx_ip_proto[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_ip_proto[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_da_ip" type="array">
+      <obj_property name="ElementShortName">rx_da_ip[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_da_ip[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rx_sa_ip" type="array">
+      <obj_property name="ElementShortName">rx_sa_ip[31:0]</obj_property>
+      <obj_property name="ObjectShortName">rx_sa_ip[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/icmp_type" type="array">
+      <obj_property name="ElementShortName">icmp_type[7:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_type[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/icmp_code" type="array">
+      <obj_property name="ElementShortName">icmp_code[7:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_code[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/icmp_data_sum" type="array">
+      <obj_property name="ElementShortName">icmp_data_sum[31:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_data_sum[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_RX/inst_RX_ICMP/rgmii_rx_data_d" type="array">
+      <obj_property name="ElementShortName">rgmii_rx_data_d[7:0]</obj_property>
+      <obj_property name="ObjectShortName">rgmii_rx_data_d[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider698">
+      <obj_property name="label">TX_ICMP</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/CLK_125M" type="logic">
+      <obj_property name="ElementShortName">CLK_125M</obj_property>
+      <obj_property name="ObjectShortName">CLK_125M</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/SYS_RST" type="logic">
+      <obj_property name="ElementShortName">SYS_RST</obj_property>
+      <obj_property name="ObjectShortName">SYS_RST</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/TRIG_TX_ICMP" type="logic">
+      <obj_property name="ElementShortName">TRIG_TX_ICMP</obj_property>
+      <obj_property name="ObjectShortName">TRIG_TX_ICMP</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ICMP_DATA" type="array">
+      <obj_property name="ElementShortName">ICMP_DATA[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ICMP_DATA[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ICMP_READY" type="logic">
+      <obj_property name="ElementShortName">ICMP_READY</obj_property>
+      <obj_property name="ObjectShortName">ICMP_READY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ICMP_LAST" type="logic">
+      <obj_property name="ElementShortName">ICMP_LAST</obj_property>
+      <obj_property name="ObjectShortName">ICMP_LAST</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ICMP_VALID" type="logic">
+      <obj_property name="ElementShortName">ICMP_VALID</obj_property>
+      <obj_property name="ObjectShortName">ICMP_VALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/TRIG_TX_ARP" type="logic">
+      <obj_property name="ElementShortName">TRIG_TX_ARP</obj_property>
+      <obj_property name="ObjectShortName">TRIG_TX_ARP</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/PC_MAC" type="array">
+      <obj_property name="ElementShortName">PC_MAC[47:0]</obj_property>
+      <obj_property name="ObjectShortName">PC_MAC[47:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/PC_IP" type="array">
+      <obj_property name="ElementShortName">PC_IP[31:0]</obj_property>
+      <obj_property name="ObjectShortName">PC_IP[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/RX_ICMP_TVALID" type="logic">
+      <obj_property name="ElementShortName">RX_ICMP_TVALID</obj_property>
+      <obj_property name="ObjectShortName">RX_ICMP_TVALID</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/RX_ICMP_TREADY" type="logic">
+      <obj_property name="ElementShortName">RX_ICMP_TREADY</obj_property>
+      <obj_property name="ObjectShortName">RX_ICMP_TREADY</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/RX_ICMP_TLAST" type="logic">
+      <obj_property name="ElementShortName">RX_ICMP_TLAST</obj_property>
+      <obj_property name="ObjectShortName">RX_ICMP_TLAST</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/RX_ICMP_TDATA" type="array">
+      <obj_property name="ElementShortName">RX_ICMP_TDATA[7:0]</obj_property>
+      <obj_property name="ObjectShortName">RX_ICMP_TDATA[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/RX_ICMP_TUSER" type="array">
+      <obj_property name="ElementShortName">RX_ICMP_TUSER[31:0]</obj_property>
+      <obj_property name="ObjectShortName">RX_ICMP_TUSER[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_current_state" type="array">
+      <obj_property name="ElementShortName">icmp_current_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_current_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_next_state" type="array">
+      <obj_property name="ElementShortName">icmp_next_state[2:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_next_state[2:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/o_icmp_data" type="array">
+      <obj_property name="ElementShortName">o_icmp_data[7:0]</obj_property>
+      <obj_property name="ObjectShortName">o_icmp_data[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/o_icmp_valid" type="logic">
+      <obj_property name="ElementShortName">o_icmp_valid</obj_property>
+      <obj_property name="ObjectShortName">o_icmp_valid</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/o_icmp_last" type="logic">
+      <obj_property name="ElementShortName">o_icmp_last</obj_property>
+      <obj_property name="ObjectShortName">o_icmp_last</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/o_icmp_ready" type="logic">
+      <obj_property name="ElementShortName">o_icmp_ready</obj_property>
+      <obj_property name="ObjectShortName">o_icmp_ready</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_word_cnt" type="array">
+      <obj_property name="ElementShortName">icmp_word_cnt[7:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_word_cnt[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/flag_prework_over" type="logic">
+      <obj_property name="ElementShortName">flag_prework_over</obj_property>
+      <obj_property name="ObjectShortName">flag_prework_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/flag_eth_header_over" type="logic">
+      <obj_property name="ElementShortName">flag_eth_header_over</obj_property>
+      <obj_property name="ObjectShortName">flag_eth_header_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/flag_ip_header_over" type="logic">
+      <obj_property name="ElementShortName">flag_ip_header_over</obj_property>
+      <obj_property name="ObjectShortName">flag_ip_header_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/flag_icmp_header_over" type="logic">
+      <obj_property name="ElementShortName">flag_icmp_header_over</obj_property>
+      <obj_property name="ObjectShortName">flag_icmp_header_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/flag_data_over" type="logic">
+      <obj_property name="ElementShortName">flag_data_over</obj_property>
+      <obj_property name="ObjectShortName">flag_data_over</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/trig_icmp_cks" type="logic">
+      <obj_property name="ElementShortName">trig_icmp_cks</obj_property>
+      <obj_property name="ObjectShortName">trig_icmp_cks</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/trig_tx_cks" type="logic">
+      <obj_property name="ElementShortName">trig_tx_cks</obj_property>
+      <obj_property name="ObjectShortName">trig_tx_cks</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/eth_temp" type="array">
+      <obj_property name="ElementShortName">eth_temp[111:0]</obj_property>
+      <obj_property name="ObjectShortName">eth_temp[111:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ip_temp" type="array">
+      <obj_property name="ElementShortName">ip_temp[159:0]</obj_property>
+      <obj_property name="ObjectShortName">ip_temp[159:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ip_identif" type="array">
+      <obj_property name="ElementShortName">ip_identif[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ip_identif[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ip_ttl" type="array">
+      <obj_property name="ElementShortName">ip_ttl[7:0]</obj_property>
+      <obj_property name="ObjectShortName">ip_ttl[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/ip_cks" type="array">
+      <obj_property name="ElementShortName">ip_cks[15:0]</obj_property>
+      <obj_property name="ObjectShortName">ip_cks[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_temp" type="array">
+      <obj_property name="ElementShortName">icmp_temp[63:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_temp[63:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_cks" type="array">
+      <obj_property name="ElementShortName">icmp_cks[15:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_cks[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_sum" type="array">
+      <obj_property name="ElementShortName">icmp_sum[31:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_sum[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_identif" type="array">
+      <obj_property name="ElementShortName">icmp_identif[15:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_identif[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_ETH_TOP/inst_ETH_TOP/inst_ETH_TX/inst_TX_ICMP/icmp_sequ" type="array">
+      <obj_property name="ElementShortName">icmp_sequ[15:0]</obj_property>
+      <obj_property name="ObjectShortName">icmp_sequ[15:0]</obj_property>
+   </wvobject>
+</wave_config>
