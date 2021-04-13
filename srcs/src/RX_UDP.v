@@ -288,7 +288,7 @@ module RX_UDP#(
 			end
 
 			m_write_state[RX_ETH_HEADER]	:	begin 
-				if (flag_frame_err)
+				if (flag_frame_err || rgmii_rx_last)
 					m_write_next[WRITE_IDLE]		=	1;
 				else if (flag_arp)
 					m_write_next[RX_ARP]			=	1;					
@@ -696,18 +696,17 @@ module RX_UDP#(
 
 	//	wd_wdata
 	always @(posedge sys_clk) begin
-		if (m_write_state[WRITE_IDLE]) begin 
-			wd_wdata	<=	0;				 	
-		end
-		else if (m_write_state[WRITE_ADDR] && m_write_next[WRITE_DATA]) begin 
+		if (m_write_state[WRITE_ADDR] && m_write_next[WRITE_DATA]) begin 
 			wd_wdata	<=	rx_wd_wdata;
 		end
-		else if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA] && (rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC) begin 	//	add (udp_word_cnt == AXI_ADDR_INC)
-			wd_wdata	<=	rx_wd_wdata;		 	
+		else if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA]) begin 	//	add (udp_word_cnt == AXI_ADDR_INC)
+			if ((rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC)
+				wd_wdata	<=	rx_wd_wdata;		 	
+			else 
+				wd_wdata	<=	wd_wdata;				 	
 		end
-		else begin 
-			wd_wdata	<=	wd_wdata;				 	
-		end
+		else
+			wd_wdata	<=	0;
 	end
 
 	//	wd_wvalid
@@ -728,7 +727,10 @@ module RX_UDP#(
 	//	m_wd_wlast
 	always @(posedge sys_clk) begin		 
 		 if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA]) begin 
-		 	wd_wlast	<=	(write_data_cnt == 1);	 				//	user setting
+		 	if ((rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC)
+		 		wd_wlast	<=	(AXI_ADDR_INC == 1) ? (write_data_cnt == 1) : (write_data_cnt == 0);	 				//	user setting
+		 	else
+		 		wd_wlast	<=	wd_wlast;
 		 end 
 		 else begin 
 		 	wd_wlast	<=	0;				 	

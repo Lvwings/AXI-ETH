@@ -49,96 +49,96 @@ module ETH_TOP#(
 	    input   sys_rst,  // synchronous reset active high
 
 	// AXI write address channel signals
-	   	input                               m_axi_wready; // Indicates slave is ready to accept a 
-	   	output [C_AXI_ID_WIDTH-1:0]         m_axi_wid;    // Write ID
-	   	output [C_AXI_ADDR_WIDTH-1:0]       m_axi_waddr;  // Write address
-	   	output [7:0]                        m_axi_wlen;   // Write Burst Length
-	   	output [2:0]                        m_axi_wsize;  // Write Burst size
-	   	output [1:0]                        m_axi_wburst; // Write Burst type
-	   	output [1:0]                        m_axi_wlock;  // Write lock type
-	   	output [3:0]                        m_axi_wcache; // Write Cache type
-	   	output [2:0]                        m_axi_wprot;  // Write Protection type
-	   	output                              m_axi_wvalid; // Write address valid
-	   	output [3:0]						m_axi_wqos;
+	   	input                               m_axi_wready, // Indicates slave is ready to accept a 
+	   	output [C_AXI_ID_WIDTH-1:0]         m_axi_wid,    // Write ID
+	   	output [C_AXI_ADDR_WIDTH-1:0]       m_axi_waddr,  // Write address
+	   	output [7:0]                        m_axi_wlen,   // Write Burst Length
+	   	output [2:0]                        m_axi_wsize,  // Write Burst size
+	   	output [1:0]                        m_axi_wburst, // Write Burst type
+	   	output [1:0]                        m_axi_wlock,  // Write lock type
+	   	output [3:0]                        m_axi_wcache, // Write Cache type
+	   	output [2:0]                        m_axi_wprot,  // Write Protection type
+	   	output                              m_axi_wvalid, // Write address valid
+	   	output [3:0]						m_axi_wqos,
 	  
 	// AXI write data channel signals
-	   	input                               m_axi_wd_wready;  // Write data ready
-	   	output [C_AXI_DATA_WIDTH-1:0]       m_axi_wd_wdata;    // Write data
-	   	output [C_AXI_DATA_WIDTH/8-1:0]     m_axi_wd_wstrb;    // Write strobes
-	   	output                              m_axi_wd_wlast;    // Last write transaction   
-	   	output                              m_axi_wd_wvalid;   // Write valid
+	   	input                               m_axi_wd_wready,  // Write data ready
+	   	output [C_AXI_DATA_WIDTH-1:0]       m_axi_wd_wdata,    // Write data
+	   	output [C_AXI_DATA_WIDTH/8-1:0]     m_axi_wd_wstrb,    // Write strobes
+	   	output                              m_axi_wd_wlast,    // Last write transaction   
+	   	output                              m_axi_wd_wvalid,   // Write valid
 	  
 	// AXI write response channel signals
-	   	input  [C_AXI_ID_WIDTH-1:0]         m_axi_wb_bid;     // Response ID
-	   	input  [1:0]                        m_axi_wb_bresp;   // Write response
-	   	input                               m_axi_wb_bvalid;  // Write reponse valid
-	   	output                              m_axi_wb_bready;  // Response ready
+	   	input  [C_AXI_ID_WIDTH-1:0]         m_axi_wb_bid,     // Response ID
+	   	input  [1:0]                        m_axi_wb_bresp,   // Write response
+	   	input                               m_axi_wb_bvalid,  // Write reponse valid
+	   	output                              m_axi_wb_bready,  // Response ready
 	  
 	// AXI read address channel signals
-	   	input                               m_axi_rready;     // Read address ready
-	   	output [C_AXI_ID_WIDTH-1:0]         m_axi_rid;        // Read ID
-	   	output [C_AXI_ADDR_WIDTH-1:0]       m_axi_raddr;      // Read address
-	   	output [7:0]                        m_axi_rlen;       // Read Burst Length
-	   	output [2:0]                        m_axi_rsize;      // Read Burst size
-	   	output [1:0]                        m_axi_rburst;     // Read Burst type
-	   	output [1:0]                        m_axi_rlock;      // Read lock type
-	   	output [3:0]                        m_axi_rcache;     // Read Cache type
-	   	output [2:0]                        m_axi_rprot;      // Read Protection type
-	   	output                              m_axi_rvalid;     // Read address valid
-	    output [3:0]						m_axi_rqos;
+	   	input                               m_axi_rready,     // Read address ready
+	   	output [C_AXI_ID_WIDTH-1:0]         m_axi_rid,        // Read ID
+	   	output [C_AXI_ADDR_WIDTH-1:0]       m_axi_raddr,      // Read address
+	   	output [7:0]                        m_axi_rlen,       // Read Burst Length
+	   	output [2:0]                        m_axi_rsize,      // Read Burst size
+	   	output [1:0]                        m_axi_rburst,     // Read Burst type
+	   	output [1:0]                        m_axi_rlock,      // Read lock type
+	   	output [3:0]                        m_axi_rcache,     // Read Cache type
+	   	output [2:0]                        m_axi_rprot,      // Read Protection type
+	   	output                              m_axi_rvalid,     // Read address valid
+	    output [3:0]						m_axi_rqos,
 
 	// AXI read data channel signals   
-	   	input  [C_AXI_ID_WIDTH-1:0]         m_axi_rd_bid;     // Response ID
-	   	input  [1:0]                        m_axi_rd_rresp;   // Read response
-	   	input                               m_axi_rd_rvalid;  // Read reponse valid
-	   	input  [C_AXI_DATA_WIDTH-1:0]       m_axi_rd_rdata;   // Read data
-	   	input                               m_axi_rd_rlast;   // Read last
-	   	output                              m_axi_rd_rready;  // Read Response ready
+	   	input  [C_AXI_ID_WIDTH-1:0]         m_axi_rd_bid,     // Response ID
+	   	input  [1:0]                        m_axi_rd_rresp,   // Read response
+	   	input                               m_axi_rd_rvalid,  // Read reponse valid
+	   	input  [C_AXI_DATA_WIDTH-1:0]       m_axi_rd_rdata,   // Read data
+	   	input                               m_axi_rd_rlast,   // Read last
+	   	output                              m_axi_rd_rready,  // Read Response ready
 
 	// AXI write address channel signals
-	   	output                            	s_axi_wready; // Indicates slave is ready to accept a 
-	   	input [C_AXI_ID_WIDTH-1:0]        	s_axi_wid;    // Write ID
-	   	input [C_AXI_ADDR_WIDTH-1:0]      	s_axi_waddr;  // Write address
-	   	input [7:0]                       	s_axi_wlen;   // Write Burst Length
-	   	input [2:0]                       	s_axi_wsize;  // Write Burst size
-	   	input [1:0]                       	s_axi_wburst; // Write Burst type
-	   	input [1:0]                       	s_axi_wlock;  // Write lock type
-	   	input [3:0]                       	s_axi_wcache; // Write Cache type
-	   	input [2:0]                       	s_axi_wprot;  // Write Protection type
-	   	input                             	s_axi_wvalid; // Write address valid
-	  	input [3:0]							s_axi_wqos;
+	   	output                            	s_axi_wready, // Indicates slave is ready to accept a 
+	   	input [C_AXI_ID_WIDTH-1:0]        	s_axi_wid,    // Write ID
+	   	input [C_AXI_ADDR_WIDTH-1:0]      	s_axi_waddr,  // Write address
+	   	input [7:0]                       	s_axi_wlen,   // Write Burst Length
+	   	input [2:0]                       	s_axi_wsize,  // Write Burst size
+	   	input [1:0]                       	s_axi_wburst, // Write Burst type
+	   	input [1:0]                       	s_axi_wlock,  // Write lock type
+	   	input [3:0]                       	s_axi_wcache, // Write Cache type
+	   	input [2:0]                       	s_axi_wprot,  // Write Protection type
+	   	input                             	s_axi_wvalid, // Write address valid
+	  	input [3:0]							s_axi_wqos,
 	// AXI write data channel signals
-	   	output                            	s_axi_wd_wready;  // Write data ready
-	   	input [C_AXI_DATA_WIDTH-1:0]      	s_axi_wd_wdata;    // Write data
-	   	input [C_AXI_DATA_WIDTH/8-1:0]    	s_axi_wd_wstrb;    // Write strobes
-	   	input                             	s_axi_wd_wlast;    // Last write transaction   
-	   	input                             	s_axi_wd_wvalid;   // Write valid
+	   	output                            	s_axi_wd_wready,  // Write data ready
+	   	input [C_AXI_DATA_WIDTH-1:0]      	s_axi_wd_wdata,    // Write data
+	   	input [C_AXI_DATA_WIDTH/8-1:0]    	s_axi_wd_wstrb,    // Write strobes
+	   	input                             	s_axi_wd_wlast,    // Last write transaction   
+	   	input                             	s_axi_wd_wvalid,   // Write valid
 	  
 	// AXI write response channel signals
-	   	output  [C_AXI_ID_WIDTH-1:0]      	s_axi_wb_bid;     // Response ID
-	   	output  [1:0]                     	s_axi_wb_bresp;   // Write response
-	   	output                            	s_axi_wb_bvalid;  // Write reponse valid
-	   	input                             	s_axi_wb_bready;  // Response ready
+	   	output  [C_AXI_ID_WIDTH-1:0]      	s_axi_wb_bid,     // Response ID
+	   	output  [1:0]                     	s_axi_wb_bresp,   // Write response
+	   	output                            	s_axi_wb_bvalid,  // Write reponse valid
+	   	input                             	s_axi_wb_bready,  // Response ready
 	  
 	// AXI read address channel signals
-	   	output                            	s_axi_rready;     // Read address ready
-	   	input [C_AXI_ID_WIDTH-1:0]        	s_axi_rid;        // Read ID
-	   	input [C_AXI_ADDR_WIDTH-1:0]      	s_axi_raddr;      // Read address
-	   	input [7:0]                       	s_axi_rlen;       // Read Burst Length
-	   	input [2:0]                       	s_axi_rsize;      // Read Burst size
-	   	input [1:0]                       	s_axi_rburst;     // Read Burst type
-	   	input [1:0]                       	s_axi_rlock;      // Read lock type
-	   	input [3:0]                       	s_axi_rcache;     // Read Cache type
-	   	input [2:0]                       	s_axi_rprot;      // Read Protection type
-	   	input                             	s_axi_rvalid;     // Read address valid
-	  	input [3:0]							s_axi_rqos;
+	   	output                            	s_axi_rready,     // Read address ready
+	   	input [C_AXI_ID_WIDTH-1:0]        	s_axi_rid,        // Read ID
+	   	input [C_AXI_ADDR_WIDTH-1:0]      	s_axi_raddr,      // Read address
+	   	input [7:0]                       	s_axi_rlen,       // Read Burst Length
+	   	input [2:0]                       	s_axi_rsize,      // Read Burst size
+	   	input [1:0]                       	s_axi_rburst,     // Read Burst type
+	   	input [1:0]                       	s_axi_rlock,      // Read lock type
+	   	input [3:0]                       	s_axi_rcache,     // Read Cache type
+	   	input [2:0]                       	s_axi_rprot,      // Read Protection type
+	   	input                             	s_axi_rvalid,     // Read address valid
+	  	input [3:0]							s_axi_rqos,
 	// AXI read data channel signals   
-	   	output  [C_AXI_ID_WIDTH-1:0]       	s_axi_rd_bid;     // Response ID
-	   	output  [1:0]                      	s_axi_rd_rresp;   // Read response
-	   	output                             	s_axi_rd_rvalid;  // Read reponse valid
-	   	output  [C_AXI_DATA_WIDTH-1:0]     	s_axi_rd_rdata;   // Read data
-	   	output                             	s_axi_rd_rlast;   // Read last
-	   	input                              	s_axi_rd_rready;   // Read Response ready
+	   	output  [C_AXI_ID_WIDTH-1:0]       	s_axi_rd_bid,     // Response ID
+	   	output  [1:0]                      	s_axi_rd_rresp,   // Read response
+	   	output                             	s_axi_rd_rvalid,  // Read reponse valid
+	   	output  [C_AXI_DATA_WIDTH-1:0]     	s_axi_rd_rdata,   // Read data
+	   	output                             	s_axi_rd_rlast,   // Read last
+	   	input                              	s_axi_rd_rready,   // Read Response ready
 
 		// AXIS RX RGMII
 	    input   [7:0]   					rgmii_rx_data,
