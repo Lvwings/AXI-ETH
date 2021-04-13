@@ -2,24 +2,46 @@
 proc init_gui { IPINST } {
   ipgui::add_param $IPINST -name "Component_Name"
   #Adding Page
-  set Page_0 [ipgui::add_page $IPINST -name "Page 0"]
-  ipgui::add_param $IPINST -name "C_ADDR_AD2ETH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_ADDR_ETH2AD" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_ADDR_ETH2MOTOR" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_ADDR_MOTOR2ETH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_ADDR_SUMOFFSET" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_AXI_ADDR_WIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_AXI_BURST_TYPE" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_AXI_DATA_WIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_AXI_ID_WIDTH" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "C_AXI_NBURST_SUPPORT" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "FLAG_AD" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "FLAG_MOTOR" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "FPGA_DP" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "FPGA_IP" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "FPGA_MAC" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "FPGA_SP" -parent ${Page_0}
-  ipgui::add_param $IPINST -name "WATCH_DOG_WIDTH" -parent ${Page_0}
+  set Page_0 [ipgui::add_page $IPINST -name "Page 0" -display_name {ETH}]
+  set_property tooltip {ETH} ${Page_0}
+  #Adding Group
+  set ETH_paramters [ipgui::add_group $IPINST -name "ETH paramters" -parent ${Page_0}]
+  ipgui::add_param $IPINST -name "FPGA_DP" -parent ${ETH_paramters}
+  ipgui::add_param $IPINST -name "FPGA_SP" -parent ${ETH_paramters}
+  ipgui::add_param $IPINST -name "FPGA_IP" -parent ${ETH_paramters}
+  ipgui::add_param $IPINST -name "FPGA_MAC" -parent ${ETH_paramters}
+
+  #Adding Group
+  set Channel_parameters [ipgui::add_group $IPINST -name "Channel parameters" -parent ${Page_0}]
+  ipgui::add_param $IPINST -name "C_ADDR_SUMOFFSET" -parent ${Channel_parameters}
+  #Adding Group
+  set channel_flag [ipgui::add_group $IPINST -name "channel flag" -parent ${Channel_parameters}]
+  ipgui::add_param $IPINST -name "FLAG_MOTOR" -parent ${channel_flag}
+  ipgui::add_param $IPINST -name "FLAG_AD" -parent ${channel_flag}
+
+  #Adding Group
+  set ETH_send [ipgui::add_group $IPINST -name "ETH send" -parent ${Channel_parameters}]
+  ipgui::add_param $IPINST -name "C_ADDR_ETH2MOTOR" -parent ${ETH_send}
+  ipgui::add_param $IPINST -name "C_ADDR_ETH2AD" -parent ${ETH_send}
+
+  #Adding Group
+  set ETH_receive [ipgui::add_group $IPINST -name "ETH receive" -parent ${Channel_parameters}]
+  ipgui::add_param $IPINST -name "C_ADDR_MOTOR2ETH" -parent ${ETH_receive}
+  ipgui::add_param $IPINST -name "C_ADDR_AD2ETH" -parent ${ETH_receive}
+
+
+
+  #Adding Page
+  set AXI [ipgui::add_page $IPINST -name "AXI"]
+  #Adding Group
+  set AXI_parameters [ipgui::add_group $IPINST -name "AXI parameters" -parent ${AXI}]
+  ipgui::add_param $IPINST -name "WATCH_DOG_WIDTH" -parent ${AXI_parameters}
+  ipgui::add_param $IPINST -name "C_AXI_ID_WIDTH" -parent ${AXI_parameters}
+  ipgui::add_param $IPINST -name "C_AXI_ADDR_WIDTH" -parent ${AXI_parameters}
+  ipgui::add_param $IPINST -name "C_AXI_DATA_WIDTH" -parent ${AXI_parameters}
+  ipgui::add_param $IPINST -name "C_AXI_NBURST_SUPPORT" -parent ${AXI_parameters} -widget comboBox
+  ipgui::add_param $IPINST -name "C_AXI_BURST_TYPE" -parent ${AXI_parameters} -widget comboBox
+
 
 
 }
