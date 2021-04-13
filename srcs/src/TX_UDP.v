@@ -21,38 +21,36 @@
 
 
 module TX_UDP#(
-	// FPGA firmware information
-	parameter FPGA_MAC         = 48'h00D0_0800_0002,
-	parameter FPGA_IP          = 32'hC0A8_006E,
-    parameter FPGA_DP          = 16'd8080,                   //  UDP目的端口号8080
-    parameter FPGA_SP          = 16'd8080,
-	// AXI information
-    parameter S_AXI_ID_WIDTH           	= 4, 		// The AXI id width used for read and write // This is an integer between 1-16
-    parameter C_AXI_ADDR_WIDTH         	= 32, 		// This is AXI address width for all 		// SI and MI slots
-    parameter C_AXI_DATA_WIDTH 			= 16, 		// Width of the AXI write and read data
-    parameter C_AXI_NBURST_SUPPORT     	= 1'b0, 	// Support for narrow burst transfers 		// 1-supported, 0-not supported 
-    parameter C_EN_WRAP_TRANS  			= 1'b0, 	// Set 1 to enable wrap transactions
-    parameter C_BEGIN_ADDRESS  			= 0, 		// Start address of the address map
-    parameter C_END_ADDRESS    			= 32'hFFFF_FFFF, // End address of the address map
-    parameter WATCH_DOG_WIDTH  			= 12,
-    // ETH receive channel setting
-    parameter	SUM_ADDR_OFFSET		=	32'h0000_0010,
-    parameter	FLAG_MOTOR			=	32'hE1EC_0C0D,
-    parameter	BASE_ADDR_MOTOR		=	32'h0000_0000,
-    parameter	FLAG_AD				=	32'hAD86_86DA,
-    parameter	BASE_ADDR_AD		=	32'h4000_0000,
-    parameter	FLAG_DDC			=	32'hDDC0_0264,
-    parameter	BASE_ADDR_DDC		=	32'h8000_0000,
-    parameter	FLAG_DDR			=	32'hDD30_DD30,
-    parameter	BASE_ADDR_DDR		=	32'hC000_0000     
+		// FPGA firmware information
+		parameter FPGA_MAC         = 48'h00D0_0800_0002,
+		parameter FPGA_IP          = 32'hC0A8_006E,
+	    parameter FPGA_DP          = 16'd8080,                   //  UDP目的端口号8080
+	    parameter FPGA_SP          = 16'd8080,
+		// AXI parameters
+	    parameter C_AXI_ID_WIDTH       = 4,        // The AXI id width used for read and write // This is an integer between 1-16
+	    parameter C_AXI_ADDR_WIDTH     = 32,       // This is AXI address width for all        // SI and MI slots
+	    parameter C_AXI_DATA_WIDTH     = 64,       // Width of the AXI write and read data
+	    parameter C_AXI_NBURST_SUPPORT = 1'b0,     // Support for narrow burst transfers       // 1-supported, 0-not supported 
+	    parameter C_AXI_BURST_TYPE     = 2'b00,    // 00:FIXED 01:INCR 10:WRAP
+	    parameter WATCH_DOG_WIDTH      = 12,   		// Start address of the address map
+	    // DATA FLAG
+	    parameter FLAG_MOTOR           =   32'hE1EC_0C0D,
+	    parameter FLAG_AD              =   32'hAD86_86DA,
+	    // ETH receive channel setting
+	    parameter C_ADDR_SUMOFFSET     =   32'h0000_1000,
+	    parameter C_ADDR_MOTOR2ETH     =   32'h0000_0000,
+	    parameter C_ADDR_AD2ETH        =   32'h1000_0000,
+	     // ETH send channel setting
+	    parameter C_ADDR_ETH2MOTOR     =   32'hE000_0000,
+	    parameter C_ADDR_ETH2AD        =   32'hF000_0000   
     )
 	(
-    input   clk_125m,
+    input   sys_clk,
     input   sys_rst,  // synchronous reset active high
 
 // AXI write address channel signals
    	output                            	axi_wready, // Indicates slave is ready to accept a 
-   	input [S_AXI_ID_WIDTH-1:0]        	axi_wid,    // Write ID
+   	input [C_AXI_ID_WIDTH-1:0]        	axi_wid,    // Write ID
    	input [C_AXI_ADDR_WIDTH-1:0]      	axi_waddr,  // Write address
    	input [7:0]                       	axi_wlen,   // Write Burst Length
    	input [2:0]                       	axi_wsize,  // Write Burst size
@@ -70,14 +68,14 @@ module TX_UDP#(
    	input                             	axi_wd_wvalid,   // Write valid
   
 // AXI write response channel signals
-   	output  [S_AXI_ID_WIDTH-1:0]      	axi_wb_bid,     // Response ID
+   	output  [C_AXI_ID_WIDTH-1:0]      	axi_wb_bid,     // Response ID
    	output  [1:0]                     	axi_wb_bresp,   // Write response
    	output                            	axi_wb_bvalid,  // Write reponse valid
    	input                             	axi_wb_bready,  // Response ready
   
 // AXI read address channel signals
    	output                            	axi_rready,     // Read address ready
-   	input [S_AXI_ID_WIDTH-1:0]        	axi_rid,        // Read ID
+   	input [C_AXI_ID_WIDTH-1:0]        	axi_rid,        // Read ID
    	input [C_AXI_ADDR_WIDTH-1:0]      	axi_raddr,      // Read address
    	input [7:0]                       	axi_rlen,       // Read Burst Length
    	input [2:0]                       	axi_rsize,      // Read Burst size
@@ -88,7 +86,7 @@ module TX_UDP#(
    	input                             	axi_rvalid,     // Read address valid
   
 // AXI read data channel signals   
-   	output  [S_AXI_ID_WIDTH-1:0]       	axi_rd_bid,     // Response ID
+   	output  [C_AXI_ID_WIDTH-1:0]       	axi_rd_bid,     // Response ID
    	output  [1:0]                      	axi_rd_rresp,   // Read response
    	output                             	axi_rd_rvalid,  // Read reponse valid
    	output  [C_AXI_DATA_WIDTH-1:0]     	axi_rd_rdata,   // Read data
@@ -117,7 +115,7 @@ module TX_UDP#(
 
 // AXI write address channel signals
 
-	reg [S_AXI_ID_WIDTH-1:0]        wr_wid 		=	0;
+	reg [C_AXI_ID_WIDTH-1:0]        wr_wid 		=	0;
 	reg [C_AXI_ADDR_WIDTH-1:0]      wr_waddr	=	0;
 	reg [7:0]                       wr_wlen		=	0;
 	reg [1:0]                       wr_wburst	=	0;
@@ -132,12 +130,12 @@ module TX_UDP#(
 // AXI write response channel signals
 	
 	reg								wb_bvalid 	=	1'b0;
-	reg	[S_AXI_ID_WIDTH-1:0]      	wb_bid		=	0;
+	reg	[C_AXI_ID_WIDTH-1:0]      	wb_bid		=	0;
 	reg [1:0]                     	wb_bresp	=	0;
 
 // AXI read address channel signals
 
-	reg [S_AXI_ID_WIDTH-1:0]        rr_rid 		=	0;
+	reg [C_AXI_ID_WIDTH-1:0]        rr_rid 		=	0;
 	reg [C_AXI_ADDR_WIDTH-1:0]      rr_raddr	=	0;
 	reg [7:0]                       rr_rlen		=	0;
 	reg [2:0]                       rr_rsize	=	0;
@@ -146,7 +144,7 @@ module TX_UDP#(
 
 // AXI read data channel signals
 	
-	reg [S_AXI_ID_WIDTH-1:0]        rd_rid 		=	0;
+	reg [C_AXI_ID_WIDTH-1:0]        rd_rid 		=	0;
 	reg [1:0]                       rd_rresp	=	0;
 	reg								rd_rvalid	=	1'b0;
 	reg [C_AXI_DATA_WIDTH-1:0]     	rd_rdata	=	0;  
@@ -192,12 +190,12 @@ module TX_UDP#(
 									trig_arp_start	=	1'b0;
 
 	//	data sum will be transfered before data
- 	reg [4:0]						flag_data_sum	 =	 0;
+ 	reg [2:0]						flag_data_sum	 =	 0;
 
    	reg [7:0]                       write_data_cnt   =   0;
 
     //	tx_wd_cnt : the counter of rgmii_rx_data make up single axi_wd_wdata, begin with 0   
-  reg	[AXI_SIZE-1 : 0]				tx_wd_cnt	=	0;
+  	reg	[AXI_SIZE-1 : 0]				tx_wd_cnt	=	0;
 
 //*****************************************************************************
 // RGMII Internal register and wire declarations
@@ -244,7 +242,7 @@ module TX_UDP#(
 	reg [15:0]  ip_identif	=   0; 
 	wire[15:0]	ip_cks;
 		//	udp header
-	 reg [63:0]	udp_temp	=   0;
+	reg [63:0]	udp_temp	=   {FPGA_SP,FPGA_DP,32'h0};
 	wire[15:0]	udp_cks;
 	reg [31:0]	udp_sum		=   0;
 	reg [15:0]	udp_len		=   0;
@@ -274,7 +272,7 @@ module TX_UDP#(
 //*****************************************************************************
 // cks signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if (sys_rst  || rgmii_tx_last) begin
 			ipcks_sum  <= 0;
 			ipcks_over <= 0;
@@ -301,7 +299,7 @@ module TX_UDP#(
 		end		
 	end	
 
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if (sys_rst  || rgmii_tx_last) begin
 			udpcks_sum	<=	0;
 			udpcks_over	<=	0;
@@ -330,7 +328,7 @@ module TX_UDP#(
 //*****************************************************************************
 // Write channel control signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			trig_udp_start <= 0;
 		end else begin
@@ -338,22 +336,18 @@ module TX_UDP#(
 		end
 	end
 
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			trig_arp_start <= 0;
-		end else begin
-			if (trig_arp)
-				trig_arp_start	<=	1;
-			else if (write_next[WRITE_IDLE])
-				trig_arp_start	<=	0;
-			else
-				trig_arp_start	<=	trig_arp_start;
-		end
+	always @(posedge sys_clk) begin
+		if (trig_arp)
+			trig_arp_start	<=	1;
+		else if (write_next[WRITE_IDLE])
+			trig_arp_start	<=	0;
+		else
+			trig_arp_start	<=	trig_arp_start;
 	end	
 //*****************************************************************************
 // Write data state machine
 //*****************************************************************************
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			write_state <= 1;
 		end else begin
@@ -374,9 +368,7 @@ module TX_UDP#(
 			end
 
 			write_state[WRITE_ADDR]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (!flag_data_sum[4] && flag_addr_over)
+				if (!flag_data_sum[2] && flag_addr_over)	
 					write_next[WRITE_DATA]		=	1;
 				else if (flag_addr_over)
 					write_next[TX_WAIT]			=	1;
@@ -385,18 +377,14 @@ module TX_UDP#(
 			end
 
 			write_state[TX_WAIT]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;			
-				else if (flag_wait_over)
+				if (flag_wait_over)
 					write_next[TX_ETH_HEADER]	=	1;			
 				else
 					write_next[TX_WAIT]			=	1;
 			end
 
 			write_state[TX_ETH_HEADER]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;		
-				else if (flag_eth_header_over && trig_arp_start)
+				if (flag_eth_header_over && trig_arp_start)
 					write_next[TX_ARP]			=	1;							
 				else if (flag_eth_header_over)
 					write_next[TX_IP_HEADER]	=	1;			
@@ -405,36 +393,28 @@ module TX_UDP#(
 			end
 
 			write_state[TX_IP_HEADER]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (flag_ip_header_over)
+				if (flag_ip_header_over)
 					write_next[TX_UDP_HEADER]	=	1;
 				else
 					write_next[TX_IP_HEADER]	=	1;				
 			end				
 
 			write_state[TX_UDP_HEADER]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (flag_udp_header_over)
+				if (flag_udp_header_over)
 					write_next[WRITE_DATA]		=	1;
 				else
 					write_next[TX_UDP_HEADER]	=	1;					
 			end
 
 			write_state[WRITE_DATA] :	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (flag_data_over)
+				if (flag_data_over)
 					write_next[WRITE_RESPONSE]	=	1;
 				else
 					write_next[WRITE_DATA]		=	1;
 			end
 
 			write_state[WRITE_RESPONSE]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (axi_wb_bvalid && axi_wb_bready)
+				if (axi_wb_bvalid && axi_wb_bready)
 					write_next[WRITE_IDLE]		=	1;
 				else
 					write_next[WRITE_RESPONSE]	=	1;			
@@ -445,9 +425,7 @@ module TX_UDP#(
 			end
 			
 			write_state[TX_ARP]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_IDLE]		=	1;
-				else if (flag_arp_over)
+				if (flag_arp_over)
 					write_next[WRITE_IDLE]		=	1;
 				else
 					write_next[TX_ARP]			=	1;	
@@ -458,7 +436,7 @@ module TX_UDP#(
 //*****************************************************************************
 // IP protocol signals
 //*****************************************************************************		
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst || trig_package_rst) begin
 			package_cnt <= 0;
 		end else begin
@@ -469,7 +447,7 @@ module TX_UDP#(
 		end
 	end
 
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			ip_identif <= 0;
 		end else begin
@@ -482,33 +460,11 @@ module TX_UDP#(
 //*****************************************************************************
 // RGMII TX signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			flag_data_sum        <= 0;
-			flag_eth_header_over <= 0;
-			flag_ip_header_over  <= 0;
-			flag_udp_header_over <= 0;
-			flag_arp_over        <= 0;
-			flag_addr_over       <= 0;
-			flag_wait_over       <= 0;
-			flag_data_over       <= 0;
-			trig_udp_cks         <= 0;
 			trig_udp_cks_d       <= 0;
-
-			eth_temp             <= 0;
-			ip_temp              <= 0; 
-			udp_temp[63:48]      <=  FPGA_SP;
-			udp_temp[47:32]      <=  FPGA_DP;
-			udp_temp[31:00]		 <=  0;
 			data_sum			 <=	0;
-			udp_sum              <= 0;
-			udp_len              <= 0;
-			udp_flag             <= 0;
-			tx_word_cnt         <= 0;
-
-			o_rgmii_data         <= 0;	
-			o_rgmii_valid        <= 1'b0;
-			o_rgmii_last         <= 1'b0;
 		end else begin
 			trig_udp_cks_d	<=	trig_udp_cks;
 			case (1)
@@ -525,14 +481,12 @@ module TX_UDP#(
 
 					eth_temp             <= 0;
 					ip_temp              <= 0; 
-					udp_temp[63:48]      <=  FPGA_SP;
-					udp_temp[47:32]      <=  FPGA_DP;
-					udp_temp[31:00]		 <=  0;
+					udp_temp[31:00]		 <= 0;
 					data_sum			 <=	data_sum;
 					udp_sum              <= 0;
 					udp_len              <= 0;
 					udp_flag             <= 0;
-					tx_word_cnt         <= 0;
+					tx_word_cnt          <= 0;
 
 					o_rgmii_data         <= 0;	
 					o_rgmii_valid        <= 1'b0;
@@ -543,11 +497,9 @@ module TX_UDP#(
 					if (axi_wvalid && axi_wready) begin
 						flag_addr_over       <= 1;
 					 	case (axi_waddr)
-					 	 	BASE_ADDR_AD		:	flag_data_sum[0]	<=	1;
-					 	 	BASE_ADDR_MOTOR		:	flag_data_sum[1]	<=	1;
-					 	 	BASE_ADDR_DDC		:	flag_data_sum[2]	<=	1;
-					 	 	BASE_ADDR_DDR		:	flag_data_sum[3]	<=	1;
-					 	 	default : flag_data_sum[4]	<=	1;	//	receive data
+					 	 	C_ADDR_AD2ETH		:	flag_data_sum[0]	<=	1;
+					 	 	C_ADDR_MOTOR2ETH	:	flag_data_sum[1]	<=	1;
+					 	 	default : flag_data_sum[2]	<=	1;	//	receive data
 					 	 endcase 			 	
 					 end
 					 else begin 
@@ -568,24 +520,13 @@ module TX_UDP#(
 										 		udp_sum	<=	data_sum + FLAG_MOTOR[31:16] + FLAG_MOTOR[15:00];
 										 		udp_len	<=	wr_wlen*AXI_ADDR_INC + FLAG_WORD; 
 										 		udp_flag<=	FLAG_MOTOR;	trig_udp_cks	<=	1;
-										 	end
-						flag_data_sum[2] : begin
-										 		udp_sum	<=	data_sum + FLAG_DDC[31:16] + FLAG_DDC[15:00] + package_cnt[31:16] + (package_cnt[15:00]);
-										 		udp_len	<=	wr_wlen*AXI_ADDR_INC + FLAG_WORD + 4; 
-										 		udp_flag<=	FLAG_DDC;	trig_udp_cks	<=	1;
-										 	end						
-						flag_data_sum[3] : begin
-												udp_sum	<=	data_sum + FLAG_DDR[31:16] + FLAG_DDR[15:00];
-												udp_len	<=	wr_wlen*AXI_ADDR_INC + FLAG_WORD; 
-												udp_flag<=	FLAG_DDR;	trig_udp_cks	<=	1;
-											end													 
+										 	end												 
 						default : begin 
 									udp_sum	<=	udp_sum;
 									udp_len	<=	udp_len;
 									udp_flag<=	udp_flag;
 						end
 					endcase
-
 
 					if (ipcks_over && udpcks_over) begin 
 						eth_temp       	<=	{pc_mac,FPGA_MAC,IP_TYPE};
@@ -680,7 +621,7 @@ module TX_UDP#(
 
 				write_next[WRITE_DATA]	:	begin
 					//	receive	data sum 
-					if (!flag_data_sum[4]) begin 		
+					if (!flag_data_sum[2]) begin 		
 						if (AXI_ADDR_INC >= 4 ) begin				// 	C_AXI_DATA_WIDTH >= 32
 							if (axi_wd_wvalid && axi_wd_wready) begin 
 								data_sum		<=	axi_wd_wdata[31:0];
@@ -712,15 +653,15 @@ module TX_UDP#(
 							o_rgmii_valid	<=	0;
 							o_rgmii_last	<=	0;
 							o_rgmii_data	<=	0; 
-							tx_word_cnt	<=	0;	
+							tx_word_cnt		<=	0;	
 							flag_data_sum   <=  0;						
 						end
 						else begin 
 							if (rgmii_tx_valid && rgmii_tx_ready) begin
 							 	o_rgmii_valid   <=	1;
 
-							 	//	transfer data	:	AD	DDC
-							 	if (flag_data_sum[0] || flag_data_sum[2]) begin 	
+							 	//	transfer data	:	AD
+							 	if (flag_data_sum[0]) begin 	
 									if (tx_word_cnt < 4)
 										o_rgmii_data	<=	udp_flag[((4-tx_word_cnt)*8 - 1) -: 8];
 									else if (tx_word_cnt < 8)
@@ -750,10 +691,6 @@ module TX_UDP#(
 							end
 						end
 					end
-				end
-
-				write_next[WRITE_RESPONSE]	:	begin 
-					
 				end
 
 				write_next[TX_ARP]	:	begin 
@@ -801,34 +738,30 @@ module TX_UDP#(
 //*****************************************************************************
 // Watch dog signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 wt_watch_dog_cnt	<=	0;
 		end else begin
-			 if (write_state != write_next || write_state[WRITE_IDLE])
+			 if (write_state != write_next)
 			 	wt_watch_dog_cnt	<=	0;
 			 else
 			 	wt_watch_dog_cnt	<=	wt_watch_dog_cnt + 1; 
 		end
-	end	
+	end
 
 //*****************************************************************************
 // Write channel address signals
 //*****************************************************************************	
 	//	wr_wready
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 wr_wready     <= 0;			 
-		end else begin
-			if (write_state[WRITE_IDLE] && write_next[WRITE_ADDR])
-				wr_wready	<=	1;
-			else
-				wr_wready	<=	0;
-		end
+	always @(posedge sys_clk) begin
+		if (write_state[WRITE_IDLE] && write_next[WRITE_ADDR])
+			wr_wready	<=	1;
+		else
+			wr_wready	<=	0;
 	end
 
 	//	wr_wid
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 wr_wid	<=	0;
 		end else begin
@@ -840,7 +773,7 @@ module TX_UDP#(
 	end
 
 	//	wr_wlen	:	INCR bursts
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 wr_wlen	<=	0;
 		end else begin
@@ -854,7 +787,7 @@ module TX_UDP#(
 	//	wr_wburst	
 	//	C_EN_WRAP_TRANS :0 INCR bursts :support burst_len max to 256 (default) 	
 	//	C_EN_WRAP_TRANS :1 WRAP bursts :support burst_len 2,4,8,16 				
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			wr_wburst	<=	0;
 		end else begin
@@ -868,37 +801,29 @@ module TX_UDP#(
 // Write channel data signals
 //*****************************************************************************	
 	//	data count
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
+	always @(posedge sys_clk) begin
+		if (write_next[WRITE_IDLE])
 			write_data_cnt	<=	0;
-		end else begin
-			if (axi_wb_bready && axi_wb_bvalid || write_next[WRITE_IDLE])
-				write_data_cnt	<=	0;
-			else if (write_state[WRITE_ADDR] && (write_next[WRITE_DATA] || write_next[TX_WAIT]))
-				write_data_cnt	<=	axi_wlen;
-			else if (axi_wd_wvalid && axi_wd_wready)
-				write_data_cnt	<=	write_data_cnt - 1;
-			else
-				write_data_cnt	<=	write_data_cnt;
-		end
+		else if (write_state[WRITE_ADDR] && (write_next[WRITE_DATA] || write_next[TX_WAIT]))
+			write_data_cnt	<=	axi_wlen;
+		else if (axi_wd_wvalid && axi_wd_wready)
+			write_data_cnt	<=	write_data_cnt - 1;
+		else
+			write_data_cnt	<=	write_data_cnt;
 	end
 
 	//	wd_wready
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 wd_wready     <= 0;			 
-		end else begin
-			if (write_state[WRITE_DATA] && (tx_wd_cnt == ({AXI_SIZE{1'b1}}-1)))
-				wd_wready	<=	axi_wd_wvalid;		
-			else if (write_state[WRITE_DATA] && !flag_data_sum[4] && (tx_word_cnt == 0))
-				wd_wready	<=	axi_wd_wvalid;
-			else
-				wd_wready	<=	0;
-		end
+	always @(posedge sys_clk) begin
+		if (write_state[WRITE_DATA] && (tx_wd_cnt == ({AXI_SIZE{1'b1}}-1)))
+			wd_wready	<=	axi_wd_wvalid;		
+		else if (write_state[WRITE_DATA] && !flag_data_sum[2] && (tx_word_cnt == 0))
+			wd_wready	<=	axi_wd_wvalid;
+		else
+			wd_wready	<=	0;
 	end	
 
 	//	wd_wdata
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 wd_wdata     <= 0;			 
 		end else begin
@@ -913,15 +838,11 @@ module TX_UDP#(
 //*****************************************************************************
 // Write channel response signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
+	always @(posedge sys_clk) begin
+		if (write_next[WRITE_RESPONSE])
+			wb_bvalid <= 1;
+		else
 			wb_bvalid <= 0;
-		end else begin
-			if (write_next[WRITE_RESPONSE])
-				wb_bvalid <= 1;
-			else
-				wb_bvalid <= 0;
-		end
 	end
 
 	assign	axi_wb_bvalid	=	wb_bvalid;

@@ -27,35 +27,31 @@ module RX_UDP#(
 	parameter FPGA_IP          = 32'hC0A8_006E,
     parameter FPGA_DP          = 16'd8080,                   //  UDP目的端口号8080
     parameter FPGA_SP          = 16'd8080,
-	// AXI information
-    parameter M_AXI_ID_WIDTH           	= 4, 		// The AXI id width used for read and write // This is an integer between 1-16
-    parameter C_AXI_ADDR_WIDTH         	= 32, 		// This is AXI address width for all 		// SI and MI slots
-    parameter C_AXI_DATA_WIDTH 			= 16, 		// Width of the AXI write and read data
-    parameter C_AXI_NBURST_SUPPORT     	= 1'b0, 	// Support for narrow burst transfers 		// 1-supported, 0-not supported 
-    parameter C_EN_WRAP_TRANS  			= 1'b0, 	// Set 1 to enable wrap transactions
-    parameter C_BEGIN_ADDRESS  			= 0, 		// Start address of the address map
-    parameter C_END_ADDRESS    			= 32'hFFFF_FFFF, // End address of the address map
-    parameter WATCH_DOG_WIDTH  			= 9,
+	// AXI parameters
+    parameter C_AXI_ID_WIDTH       = 4,        // The AXI id width used for read and write // This is an integer between 1-16
+    parameter C_AXI_ADDR_WIDTH     = 32,       // This is AXI address width for all        // SI and MI slots
+    parameter C_AXI_DATA_WIDTH     = 64,       // Width of the AXI write and read data
+    parameter C_AXI_NBURST_SUPPORT = 1'b0,     // Support for narrow burst transfers       // 1-supported, 0-not supported 
+    parameter C_AXI_BURST_TYPE     = 2'b00,    // 00:FIXED 01:INCR 10:WRAP
+    parameter WATCH_DOG_WIDTH      = 12,   		// Start address of the address map
+    // DATA FLAG
+    parameter FLAG_MOTOR           =   32'hE1EC_0C0D,
+    parameter FLAG_AD              =   32'hAD86_86DA,
     // ETH receive channel setting
-    parameter	SUM_ADDR_OFFSET		=	32'h0000_0010,
-    parameter	FLAG_MOTOR			=	32'hE1EC_0C0D,
-    parameter	BASE_ADDR_MOTOR		=	32'h0000_0000,
-    parameter	FLAG_AD				=	32'hAD86_86DA,
-    parameter	BASE_ADDR_AD		=	32'h4000_0000,
-    parameter	FLAG_DDC			=	32'hDDC0_0264,
-    parameter	BASE_ADDR_DDC		=	32'h8000_0000,
-    parameter	FLAG_DDR			=	32'hDD30_DD30,
-    parameter	BASE_ADDR_DDR		=	32'hC000_0000, 
+    parameter C_ADDR_SUMOFFSET     =   32'h0000_1000,
+    parameter C_ADDR_MOTOR2ETH     =   32'h0000_0000,
+    parameter C_ADDR_AD2ETH        =   32'h1000_0000,
      // ETH send channel setting
-    parameter	BASE_TO_MOTOR		=	32'hF000_0000           
+    parameter C_ADDR_ETH2MOTOR     =   32'hE000_0000,
+    parameter C_ADDR_ETH2AD        =   32'hF000_0000           
     )
 (
-    input   clk_125m,
+    input   sys_clk,
     input   sys_rst,  // synchronous reset active high
 
 // AXI write address channel signals
    	input                               axi_wready, // Indicates slave is ready to accept a 
-   	output [M_AXI_ID_WIDTH-1:0]         axi_wid,    // Write ID
+   	output [C_AXI_ID_WIDTH-1:0]         axi_wid,    // Write ID
    	output [C_AXI_ADDR_WIDTH-1:0]       axi_waddr,  // Write address
    	output [7:0]                        axi_wlen,   // Write Burst Length
    	output [2:0]                        axi_wsize,  // Write Burst size
@@ -73,14 +69,14 @@ module RX_UDP#(
    	output                              axi_wd_wvalid,   // Write valid
   
 // AXI write response channel signals
-   	input  [M_AXI_ID_WIDTH-1:0]         axi_wb_bid,     // Response ID
+   	input  [C_AXI_ID_WIDTH-1:0]         axi_wb_bid,     // Response ID
    	input  [1:0]                        axi_wb_bresp,   // Write response
    	input                               axi_wb_bvalid,  // Write reponse valid
    	output                              axi_wb_bready,  // Response ready
   
 // AXI read address channel signals
    	input                               axi_rready,     // Read address ready
-   	output [M_AXI_ID_WIDTH-1:0]         axi_rid,        // Read ID
+   	output [C_AXI_ID_WIDTH-1:0]         axi_rid,        // Read ID
    	output [C_AXI_ADDR_WIDTH-1:0]       axi_raddr,      // Read address
    	output [7:0]                        axi_rlen,       // Read Burst Length
    	output [2:0]                        axi_rsize,      // Read Burst size
@@ -91,7 +87,7 @@ module RX_UDP#(
    	output                              axi_rvalid,     // Read address valid
   
 // AXI read data channel signals   
-   	input  [M_AXI_ID_WIDTH-1:0]         axi_rd_bid,     // Response ID
+   	input  [C_AXI_ID_WIDTH-1:0]         axi_rd_bid,     // Response ID
    	input  [1:0]                        axi_rd_rresp,   // Read response
    	input                               axi_rd_rvalid,  // Read reponse valid
    	input  [C_AXI_DATA_WIDTH-1:0]       axi_rd_rdata,   // Read data
@@ -113,14 +109,13 @@ module RX_UDP#(
 	output								trig_arp	
 
 );
-
 //*****************************************************************************
 // AXI Internal register and wire declarations
 //*****************************************************************************
 
 // AXI write address channel signals
 
-	reg [M_AXI_ID_WIDTH-1:0]         wr_wid 	=	0;
+	reg [C_AXI_ID_WIDTH-1:0]         wr_wid 	=	0;
 	reg [C_AXI_ADDR_WIDTH-1:0]       wr_waddr	=	0;
 	reg [7:0]                        wr_wlen	=	0;
 	reg [1:0]                        wr_wburst	=	0;
@@ -139,7 +134,7 @@ module RX_UDP#(
 
 // AXI read address channel signals
 
-	reg [M_AXI_ID_WIDTH-1:0]         rr_rid 	=	0;
+	reg [C_AXI_ID_WIDTH-1:0]         rr_rid 	=	0;
 	reg [C_AXI_ADDR_WIDTH-1:0]       rr_raddr	=	0;
 	reg [7:0]                        rr_rlen	=	0;
 	reg [2:0]                        rr_rsize	=	0;
@@ -179,8 +174,8 @@ module RX_UDP#(
 									WRITE_RESPONSE = 4'd7,
 									WRITE_TIME_OUT = 4'd8;
 	//	use one-hot encode								
-   	reg [8:0]                       write_state      =   0,
-									write_next       =   0;
+   	reg [8:0]                       m_write_state      =   0,
+									m_write_next       =   0;
 
 	reg [WATCH_DOG_WIDTH : 0]       wt_watch_dog_cnt =   0;          
 	reg                             trig_write_start =   1'b0;
@@ -249,7 +244,7 @@ module RX_UDP#(
 
 	reg	[7:0]	rgmii_rx_data_d =	0;
 		//	counter
-	 reg	[7:0]	udp_word_cnt    =	0;
+	reg	[7:0]	udp_word_cnt    =	0;
 	reg 		o_rgmii_rx_ready=	1'b0;	
 	reg [47:0]	o_pc_mac	=	0;
 	reg	[31:0]	o_pc_ip		=	0;
@@ -262,7 +257,7 @@ module RX_UDP#(
 //*****************************************************************************
 // Write channel control signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			trig_write_start <= 0;
 			rgmii_rx_valid_d <=	0;
@@ -274,130 +269,100 @@ module RX_UDP#(
 //*****************************************************************************
 // Write data state machine
 //*****************************************************************************
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
-			write_state <= 1;
+			m_write_state <= 1;
 		end else begin
-			write_state	<= write_next;
+			m_write_state	<= m_write_next;
 		end
 	end
 
 	always @(*) begin
-		write_next	=	0;		//	next state reset
+		m_write_next	=	0;		//	next state reset
 		case (1)
-			write_state[WRITE_IDLE]	:	begin 
+			m_write_state[WRITE_IDLE]	:	begin 
 				if (trig_write_start)
-					write_next[RX_ETH_HEADER]	=	1;
+					m_write_next[RX_ETH_HEADER]	=	1;
 				else
-					write_next[WRITE_IDLE]		=	1;
+					m_write_next[WRITE_IDLE]		=	1;
 			end
 
-			write_state[RX_ETH_HEADER]	:	begin 
-				if (flag_frame_err || wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_IDLE]		=	1;
+			m_write_state[RX_ETH_HEADER]	:	begin 
+				if (flag_frame_err)
+					m_write_next[WRITE_IDLE]		=	1;
 				else if (flag_arp)
-					write_next[RX_ARP]			=	1;					
+					m_write_next[RX_ARP]			=	1;					
 				else if (flag_eth_header_over)
-					write_next[RX_IP_HEADER]	=	1;			
+					m_write_next[RX_IP_HEADER]	=	1;			
 				else
-					write_next[RX_ETH_HEADER]	=	1;
+					m_write_next[RX_ETH_HEADER]	=	1;
 			end
 
-			write_state[RX_IP_HEADER]	:	begin 
-				if (flag_frame_err || wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_IDLE]		=	1;
+			m_write_state[RX_IP_HEADER]	:	begin 
+				if (flag_frame_err)
+					m_write_next[WRITE_IDLE]	=	1;
 				else if (flag_ip_header_over)
-					write_next[RX_UDP_HEADER]	=	1;
+					m_write_next[RX_UDP_HEADER]	=	1;
 				else
-					write_next[RX_IP_HEADER]	=	1;				
+					m_write_next[RX_IP_HEADER]	=	1;				
 			end	
 
-			write_state[RX_UDP_HEADER]	:	begin 
-				if (flag_frame_err || wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_IDLE]		=	1;
+			m_write_state[RX_UDP_HEADER]	:	begin 
+				if (flag_frame_err)
+					m_write_next[WRITE_IDLE]		=	1;
 				else if (flag_udp_header_over)
-					write_next[WRITE_ADDR]	=	1;
+					m_write_next[WRITE_ADDR]		=	1;
 				else
-					write_next[RX_UDP_HEADER]	=	1;					
+					m_write_next[RX_UDP_HEADER]	=	1;					
 			end			
 
-			write_state[RX_ARP]	:	begin 
-				if (flag_frame_err || wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_IDLE]		=	1;
+			m_write_state[RX_ARP]	:	begin 
+				if (flag_frame_err)
+					m_write_next[WRITE_IDLE]		=	1;
 				else if (flag_arp_over)
-					write_next[WRITE_IDLE]		=	1;
+					m_write_next[WRITE_IDLE]		=	1;
 				else
-					write_next[RX_ARP]			=	1;	
+					m_write_next[RX_ARP]			=	1;	
 			end
 
-			write_state[WRITE_ADDR]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (axi_wvalid && axi_wready)
-					write_next[WRITE_DATA]		=	1;
+			m_write_state[WRITE_ADDR]	:	begin 
+				if (axi_wvalid && axi_wready)
+					m_write_next[WRITE_DATA]		=	1;
 				else
-					write_next[WRITE_ADDR]		=	1;
+					m_write_next[WRITE_ADDR]		=	1;
 			end
 
-			write_state[WRITE_DATA] :	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (axi_wd_wvalid && axi_wd_wready && axi_wd_wlast)
-					write_next[WRITE_RESPONSE]	=	1;
+			m_write_state[WRITE_DATA] :	begin 
+				if (axi_wd_wvalid && axi_wd_wready && axi_wd_wlast)
+					m_write_next[WRITE_RESPONSE]	=	1;
 				else
-					write_next[WRITE_DATA]		=	1;
+					m_write_next[WRITE_DATA]		=	1;
 			end
 
-			write_state[WRITE_RESPONSE]	:	begin 
-				if (wt_watch_dog_cnt[WATCH_DOG_WIDTH-1])
-					write_next[WRITE_TIME_OUT]	=	1;
-				else if (axi_wb_bvalid && axi_wb_bready)
-					write_next[WRITE_IDLE]		=	1;
+			m_write_state[WRITE_RESPONSE]	:	begin 
+				if (axi_wb_bvalid && axi_wb_bready)
+					m_write_next[WRITE_IDLE]		=	1;
 				else
-					write_next[WRITE_RESPONSE]	=	1;			
+					m_write_next[WRITE_RESPONSE]	=	1;			
 			end
 
-			write_state[WRITE_TIME_OUT] :	begin 
-					write_next[WRITE_IDLE]		=	1;
+			m_write_state[WRITE_TIME_OUT] :	begin 
+					m_write_next[WRITE_IDLE]		=	1;
 			end
-			default : write_next[WRITE_IDLE]		=	1;
+			default : m_write_next[WRITE_IDLE]		=	1;
 		endcase
 	end
 //*****************************************************************************
 // RGMII RX signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
-			rx_eth_type          <= 0;
-			rx_eth_da_mac        <= 0;
-			rx_eth_sa_mac        <= 0;
-			rx_ip_vision         <= 0;
-			rx_sa_ip             <= 0;
-			rx_da_ip             <= 0;
-			rx_ip_idf            <= 0;
-			rx_ip_proto          <= 0;
-			rx_ip_ttl            <= 0;
-			rx_udp_dp            <= 0;
-			rx_udp_sp            <= 0;
-			rx_udp_len           <= 0;
-
-			flag_frame_err       <= 0;
-			flag_eth_header_over <= 0;
-			flag_udp_header_over <= 0;
-			flag_ip_header_over  <= 0;
-			flag_arp             <= 0;
-			flag_arp_over        <= 0;
-			trig_package_reset     <= 0;
-
 			rgmii_rx_data_d      <= 0;
-			udp_word_cnt         <= 0;
-			o_rgmii_rx_ready     <= 0;
-			rx_wd_wdata          <= 0;
 		end else begin
 			rgmii_rx_data_d	<=	rgmii_rx_data;
 
 			case (1)
-				write_next[WRITE_IDLE] : begin 
+				m_write_next[WRITE_IDLE] : begin 
 					rx_eth_type          <= 0;
 					rx_eth_da_mac        <= 0;
 					rx_eth_sa_mac        <= 0;
@@ -417,15 +382,14 @@ module RX_UDP#(
 					flag_ip_header_over  <= 0;
 					flag_arp             <= 0;
 					flag_arp_over        <= 0;
-					trig_package_reset     <= 0;
+					trig_package_reset   <= 0;
 
-					rgmii_rx_data_d      <= 0;
 					udp_word_cnt         <= 0;
 					o_rgmii_rx_ready     <= 0;
 					rx_wd_wdata          <= 0;					
 				end
 
-				write_next[RX_ETH_HEADER]	:	begin 
+				m_write_next[RX_ETH_HEADER]	:	begin 
 		            if (udp_word_cnt == ETH_WORD) begin		            	              	
 						if ((rx_eth_type ==  IP_TYPE) && {rx_eth_da_mac,rx_eth_sa_mac} == {FPGA_MAC,pc_mac}) begin	// FPGA_MAC,pc_mac							
 							flag_eth_header_over <=  1;
@@ -473,7 +437,7 @@ module RX_UDP#(
 					end												
 				end
 
-				write_next[RX_IP_HEADER]	:	begin 
+				m_write_next[RX_IP_HEADER]	:	begin 
 			        if (udp_word_cnt == IP_WORD) begin			        	
 						if (rx_ip_vision == IP_VISION && rx_ip_proto == UDP_PROTO && {rx_sa_ip,rx_da_ip} ==  {pc_ip,FPGA_IP}) begin	// CMD帧 01
 								flag_frame_err      <=  0;      
@@ -528,9 +492,9 @@ module RX_UDP#(
 						endcase					
 					end						
 				end
-				write_next[RX_UDP_HEADER]	:	begin 
+				m_write_next[RX_UDP_HEADER]	:	begin 
 		            if (udp_word_cnt == UDP_WORD + FLAG_WORD) begin
-	            		if (rx_udp_dp == FPGA_DP && (udp_data_flag == FLAG_AD || udp_data_flag == FLAG_MOTOR || udp_data_flag == FLAG_DDC || udp_data_flag == FLAG_DDR)) begin
+	            		if (rx_udp_dp == FPGA_DP && (udp_data_flag == FLAG_AD || udp_data_flag == FLAG_MOTOR)) begin
 	                        flag_frame_err        <=  0;
 	                        flag_udp_header_over  <=  1; 
 	            		end
@@ -571,7 +535,7 @@ module RX_UDP#(
 					end											
 				end	
 
-				write_next[RX_ARP]	: begin 
+				m_write_next[RX_ARP]	: begin 
 					if (udp_word_cnt == ARP_WORD) begin
 						if (arp_opcode == ARP_REQUEST && arp_da_ip == FPGA_IP) begin // ARP 请求 + 目的IP匹配
 							o_pc_mac       <= arp_sa_mac;
@@ -621,7 +585,7 @@ module RX_UDP#(
 					end								
 				end
 
-				write_next[WRITE_DATA]	: begin 
+				m_write_next[WRITE_DATA]	: begin 
 
  					o_rgmii_rx_ready	<=	rgmii_rx_valid;
  					
@@ -650,11 +614,11 @@ module RX_UDP#(
 //*****************************************************************************
 // Watch dog signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 wt_watch_dog_cnt	<=	0;
 		end else begin
-			 if (write_state != write_next || write_state[WRITE_IDLE])
+			 if (m_write_state != m_write_next)
 			 	wt_watch_dog_cnt	<=	0;
 			 else
 			 	wt_watch_dog_cnt	<=	wt_watch_dog_cnt + 1; 
@@ -664,70 +628,42 @@ module RX_UDP#(
 // Write channel address signals
 //*****************************************************************************	
 	//	wr_waddr	wr_wvalid
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 wr_waddr	<=	C_BEGIN_ADDRESS;
-			 wr_wvalid	<=	0;
-		end else begin
-			 if (wb_bready && axi_wb_bvalid) begin
-			 	wr_waddr	<=	wr_waddr	+	AXI_ADDR_INC;
-			 	wr_wvalid	<=	0;
-			 end
-			 else if (write_state[WRITE_ADDR]) begin
-			 	case (udp_data_flag)
-			 	 	FLAG_AD		:	wr_waddr	<=	BASE_ADDR_AD  | SUM_ADDR_OFFSET;
-			 	 	FLAG_MOTOR	:	wr_waddr	<=	BASE_TO_MOTOR | SUM_ADDR_OFFSET;
-			 	 	FLAG_DDC	:	wr_waddr	<=	BASE_ADDR_DDC | SUM_ADDR_OFFSET;
-			 	 	FLAG_DDR	:	wr_waddr	<=	BASE_ADDR_DDR | SUM_ADDR_OFFSET;
-			 	 	default : wr_waddr	<=	C_BEGIN_ADDRESS;
-			 	 endcase 			 	
-			 	wr_wvalid	<=	1;
-			 end
-			 else begin 
-			 	wr_waddr	<=	wr_waddr;
-			 	wr_wvalid	<=	0;			 	
-			 end
+	always @(posedge sys_clk) begin
+		if (m_write_state[WRITE_ADDR] && m_write_next[WRITE_ADDR]) begin
+			case (udp_data_flag)
+			 	FLAG_AD		:	wr_waddr	<=	C_ADDR_ETH2AD;
+			 	FLAG_MOTOR	:	wr_waddr	<=	C_ADDR_ETH2MOTOR;
+			 	default : wr_waddr	<=	0;
+			 endcase 			 	
+			wr_wvalid	<=	1;
+		end
+		else begin 
+			wr_waddr	<=	wr_waddr;
+			wr_wvalid	<=	0;			 	
 		end
 	end
 
 	//	wr_wid
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 wr_wid	<=	0;
-		end else begin
-			 if (write_state[RX_UDP_HEADER] && write_next[WRITE_ADDR])
-			 	case (udp_data_flag)
-			 	 	FLAG_AD		:	wr_wid	<=	1;
-			 	 	FLAG_MOTOR	:	wr_wid	<=	2;
-			 	 	FLAG_DDC	:	wr_wid	<=	3;
-			 	 	FLAG_DDR	:	wr_wid	<=	4;
-			 	 	default : wr_wid	<=	0;
-			 	 endcase 
-			 else
-			 	wr_wid	<=	wr_wid;
-		end
+	always @(posedge sys_clk) begin
+		 if (m_write_state[RX_UDP_HEADER] && m_write_next[WRITE_ADDR])
+		 	case (udp_data_flag)
+		 	 	FLAG_AD		:	wr_wid	<=	1;
+		 	 	FLAG_MOTOR	:	wr_wid	<=	2;
+		 	 	default : wr_wid	<=	0;
+		 	 endcase 
+		 else
+		 	wr_wid	<=	wr_wid;
 	end
 
 	//	wr_wlen	:	INCR bursts
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 wr_wlen	<=	1;
 		end else begin
-			 if (write_state[RX_UDP_HEADER] && write_next[WRITE_ADDR])
+			 if (m_write_state[RX_UDP_HEADER] && m_write_next[WRITE_ADDR])
 			 		wr_wlen	<=	rx_cmd_len/AXI_ADDR_INC - 1;
 			 else
 			 	wr_wlen	<=	wr_wlen;
-		end
-	end	
-
-	//	wr_wburst	
-	//	C_EN_WRAP_TRANS :0 INCR bursts :support burst_len max to 256 (default) 	
-	//	C_EN_WRAP_TRANS :1 WRAP bursts :support burst_len 2,4,8,16 				
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			wr_wburst	<=	{1'b0,1'b0} + 2'b01;
-		end else begin
-			wr_wburst	<=	{1'b0,C_EN_WRAP_TRANS} + 2'b01;	
 		end
 	end	
 
@@ -735,7 +671,7 @@ module RX_UDP#(
 	assign	axi_waddr	=	wr_waddr;
 	assign	axi_wlen	=	wr_wlen;
 	assign	axi_wsize	=	AXI_SIZE;
-	assign	axi_wburst	=	wr_wburst;
+	assign	axi_wburst	=	C_AXI_BURST_TYPE;
 	assign	axi_wvalid	=	wr_wvalid;
 
 	// Not supported and hence assigned zeros
@@ -746,92 +682,80 @@ module RX_UDP#(
 // Write channel data signals
 //*****************************************************************************	
 	//	data count
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
+	always @(posedge sys_clk) begin
+		if (m_write_state[WRITE_IDLE])
 			write_data_cnt	<=	0;
-		end else begin
-			if (wb_bready && axi_wb_bvalid || write_next[WRITE_IDLE])
-				write_data_cnt	<=	0;
-			else if (write_state[WRITE_ADDR] && write_next[WRITE_DATA])
-				write_data_cnt	<=	axi_wlen;
-			else if (axi_wd_wvalid && axi_wd_wready)
-				write_data_cnt	<=	write_data_cnt - 1;
-			else
-				write_data_cnt	<=	write_data_cnt;
-		end
+		else if (m_write_state[WRITE_ADDR] && m_write_next[WRITE_DATA])
+			write_data_cnt	<=	axi_wlen;
+		else if (axi_wd_wvalid && axi_wd_wready)
+			write_data_cnt	<=	write_data_cnt - 1;
+		else
+			write_data_cnt	<=	write_data_cnt;
 	end
 
+
 	//	wd_wdata
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 wd_wdata	<=	0;
-		end else begin
-			 if (wb_bready && axi_wb_bvalid || write_next[WRITE_IDLE]) begin 
-			 	wd_wdata	<=	0;				 	
-			 end
-			 else if (write_state[WRITE_ADDR] && write_next[WRITE_DATA]) begin 
-			 	wd_wdata	<=	rx_wd_wdata;
-			 end
-			 else if (write_state[WRITE_DATA] && (rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC) begin 	//	add (udp_word_cnt == AXI_ADDR_INC)
-			 	wd_wdata	<=	rx_wd_wdata;		 	
-			 end
-			 else begin 
-			 	wd_wdata	<=	wd_wdata;				 	
-			 end
+	always @(posedge sys_clk) begin
+		if (m_write_state[WRITE_IDLE]) begin 
+			wd_wdata	<=	0;				 	
+		end
+		else if (m_write_state[WRITE_ADDR] && m_write_next[WRITE_DATA]) begin 
+			wd_wdata	<=	rx_wd_wdata;
+		end
+		else if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA] && (rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC) begin 	//	add (udp_word_cnt == AXI_ADDR_INC)
+			wd_wdata	<=	rx_wd_wdata;		 	
+		end
+		else begin 
+			wd_wdata	<=	wd_wdata;				 	
 		end
 	end
 
 	//	wd_wvalid
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 wd_wvalid	<=	0;
-		end else begin
-			 if (wb_bready && axi_wb_bvalid || write_next[WRITE_IDLE]) begin 
-			 	wd_wvalid	<=	0;				 	
-			 end
-			 else if (write_state[WRITE_DATA]) begin 
-			 	if ((rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC)
-			 		wd_wvalid	<=	1;			
-			 	else if (axi_wd_wready)
-			 		wd_wvalid	<=	0;	
-			 	else
-			 		wd_wvalid	<=	wd_wvalid;	 	
-			 end
-			 else begin 
-			 	wd_wvalid	<=	0;				 	
-			 end
-		end
+	always @(posedge sys_clk) begin
+		if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA]) begin 
+		 	if ((rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC)
+		 		wd_wvalid	<=	1;			
+		 	else if (axi_wd_wready)
+		 		wd_wvalid	<=	0;	
+		 	else
+		 		wd_wvalid	<=	wd_wvalid;	
+		 end 	
+		 else begin 
+		 	wd_wvalid	<=	0;				 	
+		 end
+
+	end
+	//	m_wd_wlast
+	always @(posedge sys_clk) begin		 
+		 if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA]) begin 
+		 	wd_wlast	<=	(write_data_cnt == 1);	 				//	user setting
+		 end 
+		 else begin 
+		 	wd_wlast	<=	0;				 	
+		 end		
 	end
 
 	//	wd_wstrb
 	//	used in narrow transfer, data bytes mask, wstrb = 4'b0001 -> only last byte valid
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
+	always @(posedge sys_clk) begin
+		if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA])
+			wd_wstrb	<=	{(C_AXI_DATA_WIDTH/8){1'b1}};
+		else
 			wd_wstrb	<=	0;
-		end else begin
-			if (write_state[WRITE_DATA])
-				wd_wstrb	<=	{(C_AXI_DATA_WIDTH/8){1'b1}};
-			else
-				wd_wstrb	<=	0;
-		end
 	end
 
 	assign	axi_wd_wdata	=	wd_wdata;
 	assign	axi_wd_wstrb	=	wd_wstrb;
-	assign	axi_wd_wlast	=	write_state[WRITE_DATA] && (write_data_cnt == 0);
+	assign	axi_wd_wlast	=	wd_wlast;
 	assign	axi_wd_wvalid	=	wd_wvalid;
 //*****************************************************************************
 // Write channel response signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
+	always @(posedge sys_clk) begin
+		if (m_write_state[WRITE_RESPONSE])
+			wb_bready <= axi_wb_bvalid;
+		else
 			wb_bready <= 0;
-		end else begin
-			if (write_state[WRITE_RESPONSE])
-				wb_bready <= axi_wb_bvalid;
-			else
-				wb_bready <= 0;
-		end
 	end
 
 	assign	axi_wb_bready	=	wb_bready;
@@ -843,7 +767,7 @@ module RX_UDP#(
 									READ_DATA        =   4'd2,
 									READ_TIME_OUT    =   4'd3;
 	//	use one-hot encode								
-   (* keep="true" *) reg [3:0]                       read_state       =   0,
+    reg [3:0]                       read_state       =   0,
 									read_next        =   0;
 
 	reg [WATCH_DOG_WIDTH : 0]       rd_watch_dog_cnt =   0; 
@@ -851,7 +775,7 @@ module RX_UDP#(
 //*****************************************************************************
 // Read data state machine
 //*****************************************************************************
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			read_state <= 1;
 		end else begin
@@ -870,18 +794,14 @@ module RX_UDP#(
 			end
 
 			read_state[READ_ADDR]	:	begin 
-				if (rd_watch_dog_cnt[WATCH_DOG_WIDTH])
-					read_next[READ_TIME_OUT]	=	1;
-				else if (axi_rvalid && axi_rready)
+				if (axi_rvalid && axi_rready)
 					read_next[READ_DATA]		=	1;
 				else
 					read_next[READ_ADDR]		=	1;
 			end
 
 			read_state[READ_DATA] :	begin 
-				if (rd_watch_dog_cnt[WATCH_DOG_WIDTH])
-					read_next[READ_TIME_OUT]	=	1;
-				else if (axi_rd_rvalid && axi_rd_rready && axi_rd_rlast)
+				if (axi_rd_rvalid && axi_rd_rready && axi_rd_rlast)
 					read_next[READ_IDLE]		=	1;
 				else
 					read_next[READ_DATA]		=	1;
@@ -896,7 +816,7 @@ module RX_UDP#(
 //*****************************************************************************
 // Read channel control signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			trig_read_start <= 0;
 		end else begin
@@ -906,42 +826,33 @@ module RX_UDP#(
 //*****************************************************************************
 // Read dog signals
 //*****************************************************************************	
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 rd_watch_dog_cnt	<=	0;
-		end else begin
-			 if (read_state != read_next || read_state[READ_IDLE])
-			 	rd_watch_dog_cnt	<=	0;
-			 else
-			 	rd_watch_dog_cnt	<=	rd_watch_dog_cnt + 1; 
-		end
+	always @(posedge sys_clk) begin
+		 if (read_state != read_next)
+		 	rd_watch_dog_cnt	<=	0;
+		 else
+		 	rd_watch_dog_cnt	<=	rd_watch_dog_cnt + 1; 
 	end
 //*****************************************************************************
 // Read channel address signals
 //*****************************************************************************	
 	//	rr_raddr	rr_rvalid
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 rr_raddr	<=	C_BEGIN_ADDRESS;
-			 rr_rvalid	<=	0;
-		end else begin
-			 if (axi_rd_rlast && axi_rd_rvalid && axi_rd_rready) begin
-			 	rr_raddr	<=	rr_raddr	+	AXI_ADDR_INC;
-			 	rr_rvalid	<=	0;
-			 end
-			 else if (read_next[READ_ADDR]) begin 
-			 	rr_raddr	<=	rr_raddr;
-			 	rr_rvalid	<=	axi_rready;
-			 end
-			 else begin 
-			 	rr_raddr	<=	rr_raddr;
-			 	rr_rvalid	<=	0;			 	
-			 end
-		end
+	always @(posedge sys_clk) begin
+		 if (axi_rd_rlast && axi_rd_rvalid && axi_rd_rready) begin
+		 	rr_raddr	<=	rr_raddr	+	AXI_ADDR_INC;
+		 	rr_rvalid	<=	0;
+		 end
+		 else if (read_next[READ_ADDR]) begin 
+		 	rr_raddr	<=	rr_raddr;
+		 	rr_rvalid	<=	axi_rready;
+		 end
+		 else begin 
+		 	rr_raddr	<=	rr_raddr;
+		 	rr_rvalid	<=	0;			 	
+		 end
 	end
 
 	//	rr_rid
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 rr_rid	<=	0;
 		end else begin
@@ -953,7 +864,7 @@ module RX_UDP#(
 	end
 
 	//	rr_rlen	:	INCR bursts
-	always @(posedge clk_125m) begin
+	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			 rr_rlen	<=	1;
 		end else begin
@@ -970,19 +881,19 @@ module RX_UDP#(
 	//	rr_rburst	
 	//	C_EN_WRAP_TRANS :0 INCR bursts :support burst_len max to 256 (default) 	
 	//	C_EN_WRAP_TRANS :1 WRAP bursts :support burst_len 2,4,8,16 				
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
-			 rr_rburst	<=	{1'b0,1'b0} + 2'b01;
-		end else begin
-			rr_rburst	<=	{1'b0,C_EN_WRAP_TRANS} + 2'b01;	
-		end
-	end	
+	//always @(posedge sys_clk) begin
+	//	if(sys_rst) begin
+	//		 rr_rburst	<=	{1'b0,1'b0} + 2'b01;
+	//	end else begin
+	//		rr_rburst	<=	{1'b0,C_EN_WRAP_TRANS} + 2'b01;	
+	//	end
+	//end	
 
 	assign	axi_rid		=	rr_rid;
 	assign	axi_raddr	=	rr_raddr;
 	assign	axi_rlen	=	rr_rlen;
 	assign	axi_rsize	=	AXI_SIZE;
-	assign	axi_rburst	=	rr_rburst;
+	assign	axi_rburst	=	C_AXI_BURST_TYPE;
 	assign	axi_rvalid	=	rr_rvalid;
 
 	// Not supported and hence assigned zeros
@@ -992,15 +903,11 @@ module RX_UDP#(
 //*****************************************************************************
 // Read channel data signals
 //*****************************************************************************
-	always @(posedge clk_125m) begin
-		if(sys_rst) begin
+	always @(posedge sys_clk) begin
+		if (read_next[READ_DATA])
+			rd_rready <= axi_rd_rvalid;
+		else
 			rd_rready <= 0;
-		end else begin
-			if (read_next[READ_DATA])
-				rd_rready <= axi_rd_rvalid;
-			else
-				rd_rready <= 0;
-		end
 	end
 
 	assign	axi_rd_rready	=	rd_rready;	
