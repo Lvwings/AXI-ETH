@@ -32,14 +32,16 @@ module TX_UDP#(
 	    parameter C_AXI_DATA_WIDTH     = 64,       // Width of the AXI write and read data
 	    parameter C_AXI_NBURST_SUPPORT = 1'b0,     // Support for narrow burst transfers       // 1-supported, 0-not supported 
 	    parameter C_AXI_BURST_TYPE     = 2'b00,    // 00:FIXED 01:INCR 10:WRAP
-	    parameter WATCH_DOG_WIDTH      = 12,   		// Start address of the address map
+	    parameter WATCH_DOG_WIDTH      = 12,        // Start address of the address map
 	    // DATA FLAG
 	    parameter FLAG_MOTOR           =   32'hE1EC_0C0D,
 	    parameter FLAG_AD              =   32'hAD86_86DA,
+	    parameter FLAG_ETHLOOP         =   32'hEEBA_EEBA,
 	    // ETH receive channel setting
 	    parameter C_ADDR_SUMOFFSET     =   32'h0000_1000,
 	    parameter C_ADDR_MOTOR2ETH     =   32'h0000_0000,
 	    parameter C_ADDR_AD2ETH        =   32'h1000_0000,
+	    parameter C_ADDR_ETHLOOP       =   32'h2000_0000,
 	     // ETH send channel setting
 	    parameter C_ADDR_ETH2MOTOR     =   32'hE000_0000,
 	    parameter C_ADDR_ETH2AD        =   32'hF000_0000   
@@ -173,7 +175,7 @@ module TX_UDP#(
 //*****************************************************************************							
 	localparam  [3:0]               WRITE_IDLE     = 4'd0, 
 									WRITE_ADDR     = 4'd1,
-									TX_WAIT		   = 4'd2,
+									TX_WAIT		   = 4'd2,		//	calculate udp ip cks
 									TX_ETH_HEADER  = 4'd3,
 									TX_IP_HEADER   = 4'd4,								
 									TX_UDP_HEADER  = 4'd5,
@@ -190,7 +192,7 @@ module TX_UDP#(
 									trig_arp_start	=	1'b0;
 
 	//	data sum will be transfered before data
- 	reg [2:0]						flag_data_sum	 =	 0;
+ 	reg [3:0]						flag_data_sum	 =	 0;
 
    	reg [7:0]                       write_data_cnt   =   0;
 
@@ -229,6 +231,7 @@ module TX_UDP#(
 				flag_arp_over			=	1'b0,
 				flag_addr_over			=	1'b0,
 				flag_wait_over			=	1'b0,
+				flag_arp_wait_over		=	1'b0,
 				flag_data_over			=	1'b0;
 
 	reg 		trig_udp_cks 	=	1'b0;
@@ -236,35 +239,33 @@ module TX_UDP#(
 
 	//--------- registers -----------------
 		//	eth header
-	reg [111:0] eth_temp	=   0;
+	reg [111:0] eth_temp      =   0;
 		//	ip header
-	reg [159:0] ip_temp		=   0; 
-	reg [15:0]  ip_identif	=   0; 
-	wire[15:0]	ip_cks;
+	reg [159:0] ip_temp       =   0; 
+	reg [15:0]  ip_identif    =   0; 
 		//	udp header
-	reg [63:0]	udp_temp	=   {FPGA_SP,FPGA_DP,32'h0};
-	wire[15:0]	udp_cks;
-	reg [31:0]	udp_sum		=   0;
-	reg [15:0]	udp_len		=   0;
-	reg [31:0]	udp_flag	=	0;
-	reg [31:0]	data_sum 	=	0;
+	reg [63:0]  udp_temp      =   {FPGA_SP,FPGA_DP,32'h0};
+	reg [31:0]  udp_sum       =   0;
+	reg [15:0]  udp_len       =   0;
+	reg [31:0]  udp_flag      =   0;
+	reg [31:0]  data_sum      =   0;
 		//	arp
-	reg [223:0] arp_temp       =   0;	
+	reg [223:0] arp_temp      =	0;   
 		//	counter
-	reg	[15:0]	tx_word_cnt    =	0;
+	reg [15:0]  tx_word_cnt   =	0;
 		// ports
-	reg [7:0]	o_rgmii_data	=	0;	
-	reg 		o_rgmii_valid	=	1'b0;
-	reg 		o_rgmii_last	=	1'b0;
+	reg [7:0]   o_rgmii_data  =   0;  
+	reg         o_rgmii_valid =   1'b0;
+	reg         o_rgmii_last  =   1'b0;
 	
-	reg [31:0]	package_cnt	=	0;
+	reg [31:0]  package_cnt   =   0;
 
 	//--------- ip udp cks -----------------
-	reg [31:0]	ipcks_sum;
-	reg [31:0] 	udpcks_sum;	
-	reg 		ipcks_over;
-	reg			udpcks_over;
-
+	reg [31:0]  ipcks_sum     =	0;
+	reg [31:0]  udpcks_sum    =	0;  
+	reg         ipcks_over    =	0;
+	reg         udpcks_over   =	0;
+	reg [127:0] eth_loop_data =	0;
 
 	assign	rgmii_tx_data	=	o_rgmii_data;
 	assign	rgmii_tx_valid	=	o_rgmii_valid;
@@ -339,7 +340,7 @@ module TX_UDP#(
 	always @(posedge sys_clk) begin
 		if (trig_arp)
 			trig_arp_start	<=	1;
-		else if (write_next[WRITE_IDLE])
+		else if (flag_arp_over)
 			trig_arp_start	<=	0;
 		else
 			trig_arp_start	<=	trig_arp_start;
@@ -363,28 +364,30 @@ module TX_UDP#(
 					write_next[WRITE_ADDR]		=	1;
 				else if (trig_arp_start)
 					write_next[TX_WAIT]			=	1;
+				else if (flag_data_sum[2])
+					write_next[TX_WAIT]			=	1;
 				else
 					write_next[WRITE_IDLE]		=	1;
 			end
 
 			write_state[WRITE_ADDR]	:	begin 
-				if (!flag_data_sum[2] && flag_addr_over)	
-					write_next[WRITE_DATA]		=	1;
-				else if (flag_addr_over)
+				if (flag_data_sum[3] && flag_addr_over)
 					write_next[TX_WAIT]			=	1;
+				else if ((|flag_data_sum[2:0]) && flag_addr_over)	//	receive data sum
+					write_next[WRITE_DATA]		=	1;				
 				else
 					write_next[WRITE_ADDR]		=	1;
 			end
 
-			write_state[TX_WAIT]	:	begin 
-				if (flag_wait_over)
+			write_state[TX_WAIT]	:	begin 				
+				if (flag_wait_over || flag_arp_wait_over)
 					write_next[TX_ETH_HEADER]	=	1;			
 				else
 					write_next[TX_WAIT]			=	1;
 			end
 
 			write_state[TX_ETH_HEADER]	:	begin 
-				if (flag_eth_header_over && trig_arp_start)
+				if (flag_eth_header_over && flag_arp_wait_over)
 					write_next[TX_ARP]			=	1;							
 				else if (flag_eth_header_over)
 					write_next[TX_IP_HEADER]	=	1;			
@@ -407,7 +410,9 @@ module TX_UDP#(
 			end
 
 			write_state[WRITE_DATA] :	begin 
-				if (flag_data_over)
+				if (flag_data_over && flag_data_sum[2] && flag_wait_over)
+					write_next[WRITE_IDLE]		=	1;
+				else if (flag_data_over)
 					write_next[WRITE_RESPONSE]	=	1;
 				else
 					write_next[WRITE_DATA]		=	1;
@@ -462,14 +467,15 @@ module TX_UDP#(
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
 		if(sys_rst) begin
-			flag_data_sum        <= 0;
-			trig_udp_cks_d       <= 0;
-			data_sum			 <=	0;
+			flag_data_sum  <= 0;
+			trig_udp_cks_d <= 0;
+			data_sum       <= 0;
+			eth_loop_data  <= 0;
 		end else begin
 			trig_udp_cks_d	<=	trig_udp_cks;
 			case (1)
 				write_next[WRITE_IDLE]	:	begin 
-					flag_data_sum        <= flag_data_sum;
+					flag_data_sum        <= flag_wait_over ? 0 : flag_data_sum;
 					flag_eth_header_over <= 0;
 					flag_ip_header_over  <= 0;
 					flag_udp_header_over <= 0;
@@ -477,6 +483,7 @@ module TX_UDP#(
 					flag_addr_over       <= 0;
 					flag_wait_over       <= 0;
 					flag_data_over       <= 0;
+					flag_arp_wait_over	 <=	0;
 					trig_udp_cks		 <=	0;
 
 					eth_temp             <= 0;
@@ -486,7 +493,7 @@ module TX_UDP#(
 					udp_sum              <= 0;
 					udp_len              <= 0;
 					udp_flag             <= 0;
-					tx_word_cnt          <= 0;
+					tx_word_cnt          <= 0;					
 
 					o_rgmii_data         <= 0;	
 					o_rgmii_valid        <= 1'b0;
@@ -499,7 +506,10 @@ module TX_UDP#(
 					 	case (axi_waddr)
 					 	 	C_ADDR_AD2ETH		:	flag_data_sum[0]	<=	1;
 					 	 	C_ADDR_MOTOR2ETH	:	flag_data_sum[1]	<=	1;
-					 	 	default : flag_data_sum[2]	<=	1;	//	receive data
+					 	 	C_ADDR_ETHLOOP		:	flag_data_sum[2]	<=	1;
+					 	 	(C_ADDR_AD2ETH + C_ADDR_SUMOFFSET),(C_ADDR_MOTOR2ETH + C_ADDR_SUMOFFSET)
+					 	 						:	flag_data_sum[3]	<=	1;	//	receive data
+					 	 	default : flag_data_sum	<=	0;	
 					 	 endcase 			 	
 					 end
 					 else begin 
@@ -514,13 +524,18 @@ module TX_UDP#(
 						flag_data_sum[0] : begin
 										 		udp_sum	<=	data_sum + FLAG_AD[31:16] + FLAG_AD[15:00] + package_cnt[31:16] + (package_cnt[15:00]);
 										 		udp_len	<=	wr_wlen*AXI_ADDR_INC + FLAG_WORD + 4;
-										 		udp_flag<=	FLAG_AD;	trig_udp_cks	<=	1;
+										 		udp_flag<=	FLAG_AD;		trig_udp_cks	<=	1;
 										 	end
 						flag_data_sum[1] : begin	
 										 		udp_sum	<=	data_sum + FLAG_MOTOR[31:16] + FLAG_MOTOR[15:00];
 										 		udp_len	<=	wr_wlen*AXI_ADDR_INC + FLAG_WORD; 
-										 		udp_flag<=	FLAG_MOTOR;	trig_udp_cks	<=	1;
-										 	end												 
+										 		udp_flag<=	FLAG_MOTOR;		trig_udp_cks	<=	1;
+										 	end	
+						flag_data_sum[2] : begin 
+										 		udp_sum	<=	data_sum + FLAG_ETHLOOP[31:16] + FLAG_ETHLOOP[15:00];
+										 		udp_len	<=	16 + FLAG_WORD; 
+										 		udp_flag<=	FLAG_ETHLOOP;	trig_udp_cks	<=	1;
+											end											 
 						default : begin 
 									udp_sum	<=	udp_sum;
 									udp_len	<=	udp_len;
@@ -529,15 +544,15 @@ module TX_UDP#(
 					endcase
 
 					if (ipcks_over && udpcks_over) begin 
-						eth_temp       	<=	{pc_mac,FPGA_MAC,IP_TYPE};
-						ip_temp			<=	{{IP_VISION,8'h00},(IP_WORD + UDP_WORD + udp_len),ip_identif,IP_FLAG_OFFSET,{IP_TTL,UDP_PROTO},ipcks_sum[15:0],FPGA_IP,pc_ip};
-						udp_temp[31:0]  <=	{(UDP_WORD + udp_len),udpcks_sum[15:0]};
-						flag_wait_over 	<=	1;
+						eth_temp           <=  {pc_mac,FPGA_MAC,IP_TYPE};
+						ip_temp            <=  {{IP_VISION,8'h00},(IP_WORD + UDP_WORD + udp_len),ip_identif,IP_FLAG_OFFSET,{IP_TTL,UDP_PROTO},ipcks_sum[15:0],FPGA_IP,pc_ip};
+						udp_temp[31:0]     <=  {(UDP_WORD + udp_len),udpcks_sum[15:0]};
+						flag_wait_over     <=  1;
 					end
-					else if (trig_arp_start) begin 
-						eth_temp       	<=	{pc_mac,FPGA_MAC,ARP_TYPE};
-						arp_temp		<=	{ARP_HEAD,FPGA_MAC,FPGA_IP,pc_mac,pc_ip};
-						flag_wait_over 	<=	1;
+					else if (trig_arp_start && !flag_addr_over) begin 
+						eth_temp           <=  {pc_mac,FPGA_MAC,ARP_TYPE};
+						arp_temp           <=  {ARP_HEAD,FPGA_MAC,FPGA_IP,pc_mac,pc_ip};
+						flag_arp_wait_over <=  1;
 					end
 					else begin 
 						eth_temp	<=	eth_temp;
@@ -548,31 +563,31 @@ module TX_UDP#(
 				end
 
 				write_next[TX_ETH_HEADER]	:	begin
-					trig_udp_cks	<=	0;
+					trig_udp_cks             <=  0;
 					if (tx_word_cnt == ETH_WORD) begin
 						o_rgmii_valid        <= 1;
 						if (trig_arp_start)
-							o_rgmii_data	<=	arp_temp[223:216];
+							o_rgmii_data     <= arp_temp[223:216];
 						else
-							o_rgmii_data         <= ip_temp[159:152];
+							o_rgmii_data     <= ip_temp[159:152];
 						flag_eth_header_over <= 1;
-						tx_word_cnt         <= 1;
+						tx_word_cnt          <= 1;
 					end
 					else begin
 						if (!rgmii_tx_valid) begin 
-							o_rgmii_valid   <=	1;
-							o_rgmii_data	<=	eth_temp[((ETH_WORD - 1)-tx_word_cnt)*8 +: 8];
-							tx_word_cnt	<=	1;
+							o_rgmii_valid <=  1;
+							o_rgmii_data  <=  eth_temp[((ETH_WORD - 1)-tx_word_cnt)*8 +: 8];
+							tx_word_cnt   <=  1;
 						end
 						else if (rgmii_tx_valid && rgmii_tx_ready) begin
-						 	o_rgmii_valid   <=	1;							
-							o_rgmii_data	<=	eth_temp[((ETH_WORD - 1)-tx_word_cnt)*8 +: 8];
-							tx_word_cnt	<=	tx_word_cnt + 1;							
+						    o_rgmii_valid <=  1;                          
+							o_rgmii_data  <=  eth_temp[((ETH_WORD - 1)-tx_word_cnt)*8 +: 8];
+							tx_word_cnt   <=  tx_word_cnt + 1;                            
 						end
 						else begin
-							o_rgmii_valid	<=	1;
-							o_rgmii_data	<=	o_rgmii_data; 
-							tx_word_cnt	<=	tx_word_cnt;
+							o_rgmii_valid <=  1;
+							o_rgmii_data  <=  o_rgmii_data; 
+							tx_word_cnt   <=  tx_word_cnt;
 						end							
 					end
 				end
@@ -586,14 +601,14 @@ module TX_UDP#(
 					end
 					else begin
 						if (rgmii_tx_valid && rgmii_tx_ready) begin
-						 	o_rgmii_valid   <=	1;							
-							o_rgmii_data	<=	ip_temp[((IP_WORD - 1)-tx_word_cnt)*8 +: 8];
-							tx_word_cnt	<=	tx_word_cnt + 1;							
+						    o_rgmii_valid   <=  1;                          
+							o_rgmii_data    <=  ip_temp[((IP_WORD - 1)-tx_word_cnt)*8 +: 8];
+							tx_word_cnt     <=  tx_word_cnt + 1;                            
 						end
 						else begin
-							o_rgmii_valid	<=	1;
-							o_rgmii_data	<=	o_rgmii_data; 
-							tx_word_cnt	<=	tx_word_cnt;
+							o_rgmii_valid   <=  1;
+							o_rgmii_data    <=  o_rgmii_data; 
+							tx_word_cnt     <=  tx_word_cnt;
 						end							
 					end
 				end				
@@ -603,25 +618,25 @@ module TX_UDP#(
 						o_rgmii_valid        <= 1;
 						o_rgmii_data         <= udp_flag[31:24];
 						flag_udp_header_over <= 1;
-						tx_word_cnt         <= 1;
+						tx_word_cnt          <= 1;
 					end
 					else begin
 						if (rgmii_tx_valid && rgmii_tx_ready) begin
-						 	o_rgmii_valid   <=	1;							
-							o_rgmii_data	<=	udp_temp[((UDP_WORD - 1)-tx_word_cnt)*8 +: 8];
-							tx_word_cnt	<=	tx_word_cnt + 1;							
+						    o_rgmii_valid    <=  1;                          
+							o_rgmii_data     <=  udp_temp[((UDP_WORD - 1)-tx_word_cnt)*8 +: 8];
+							tx_word_cnt      <=  tx_word_cnt + 1;                            
 						end
 						else begin
-							o_rgmii_valid	<=	1;
-							o_rgmii_data	<=	o_rgmii_data; 
-							tx_word_cnt	<=	tx_word_cnt;
+							o_rgmii_valid    <=  1;
+							o_rgmii_data     <=  o_rgmii_data; 
+							tx_word_cnt      <=  tx_word_cnt;
 						end							
 					end
 				end	
 
 				write_next[WRITE_DATA]	:	begin
 					//	receive	data sum 
-					if (!flag_data_sum[2]) begin 		
+					if (|flag_data_sum[1:0] && !flag_wait_over) begin 		
 						if (AXI_ADDR_INC >= 4 ) begin				// 	C_AXI_DATA_WIDTH >= 32
 							if (axi_wd_wvalid && axi_wd_wready) begin 
 								data_sum		<=	axi_wd_wdata[31:0];
@@ -646,6 +661,20 @@ module TX_UDP#(
 							flag_data_over	<=	(tx_word_cnt == {SUM_SIZE{1'b1}});					
 						end
 					end
+					//	eth loop
+					else if (flag_data_sum[2] && !flag_wait_over) begin 
+						if (axi_wd_wvalid && axi_wd_wready) begin 
+							tx_word_cnt	<=	tx_word_cnt + 1;
+							data_sum	<=	data_sum + axi_wd_wdata[15:0] + axi_wd_wdata[31:16] + axi_wd_wdata[47:32] + axi_wd_wdata[63:48];
+							eth_loop_data[127-tx_word_cnt*64 -: 64]		<=	axi_wd_wdata;
+						end							
+						else begin 
+							tx_word_cnt   <=  tx_word_cnt;
+							data_sum      <=  data_sum;
+							eth_loop_data <=  eth_loop_data;
+						end													
+						flag_data_over	<=	(tx_word_cnt == 2);	
+					end
 					//	transfer data
 					else begin
 						if (tx_word_cnt == udp_len) begin
@@ -654,7 +683,8 @@ module TX_UDP#(
 							o_rgmii_last	<=	0;
 							o_rgmii_data	<=	0; 
 							tx_word_cnt		<=	0;	
-							flag_data_sum   <=  0;						
+							data_sum		<=	0;	
+							eth_loop_data	<=	0;					
 						end
 						else begin 
 							if (rgmii_tx_valid && rgmii_tx_ready) begin
@@ -669,10 +699,16 @@ module TX_UDP#(
 									// exchange high 8-bit and low 8-bit
 									else begin 
 										o_rgmii_data	<=	wd_wdata[((C_AXI_DATA_WIDTH/8 - tx_wd_cnt)*8 - 1) -: 8];	
-									end
-										
+									end										
 							 	end
-							 	//	transger state	:	MOTOR	DDR
+							 	//	transfer eth loop
+							 	else if (flag_data_sum[2]) begin 
+									if (tx_word_cnt < 4)
+										o_rgmii_data	<=	udp_flag[((4-tx_word_cnt)*8 - 1) -: 8];
+									else 
+										o_rgmii_data	<=	eth_loop_data[((udp_len-tx_word_cnt)*8 - 1) -: 8];							 		
+							 	end
+							 	//	transfer state	:	MOTOR	DDR
 							 	else begin 
 									if (tx_word_cnt < 4)
 										o_rgmii_data	<=	udp_flag[((4-tx_word_cnt)*8 - 1) -: 8];
@@ -816,7 +852,9 @@ module TX_UDP#(
 	always @(posedge sys_clk) begin
 		if (write_state[WRITE_DATA] && (tx_wd_cnt == ({AXI_SIZE{1'b1}}-1)))
 			wd_wready	<=	axi_wd_wvalid;		
-		else if (write_state[WRITE_DATA] && !flag_data_sum[2] && (tx_word_cnt == 0))
+		else if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && !flag_data_sum[3] && (tx_word_cnt == 0))
+			wd_wready	<=	axi_wd_wvalid;
+		else if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && flag_data_sum[2])
 			wd_wready	<=	axi_wd_wvalid;
 		else
 			wd_wready	<=	0;
@@ -824,14 +862,13 @@ module TX_UDP#(
 
 	//	wd_wdata
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
-			 wd_wdata     <= 0;			 
-		end else begin
+		if (write_state[WRITE_DATA] && write_next[WRITE_DATA])
 			if (axi_wd_wready && axi_wd_wvalid)
 				wd_wdata	<=	axi_wd_wdata;
 			else
 				wd_wdata	<=	wd_wdata;
-		end
+		else
+			wd_wdata	<=	0;
 	end
 	//	output
 	assign	axi_wd_wready	=	wd_wready;

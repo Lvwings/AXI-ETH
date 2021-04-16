@@ -159,6 +159,54 @@ module ETH_TOP#(
 	wire		trig_package_rst;
 	wire		trig_arp;
 
+	// AXI write address channel signals
+	   	wire                              t_axi_wready; // Indicates slave is ready to accept a 
+	   	wire [C_AXI_ID_WIDTH-1:0]         t_axi_wid;    // Write ID
+	   	wire [C_AXI_ADDR_WIDTH-1:0]       t_axi_waddr;  // Write address
+	   	wire [7:0]                        t_axi_wlen;   // Write Burst Length
+	   	wire [2:0]                        t_axi_wsize;  // Write Burst size
+	   	wire [1:0]                        t_axi_wburst; // Write Burst type
+	   	wire [1:0]                        t_axi_wlock;  // Write lock type
+	   	wire [3:0]                        t_axi_wcache; // Write Cache type
+	   	wire [2:0]                        t_axi_wprot;  // Write Protection type
+	   	wire                              t_axi_wvalid; // Write address valid
+	   	wire [3:0]						  t_axi_wqos;
+	  
+	// AXI write data channel signals
+	   	wire                              t_axi_wd_wready;  // Write data ready
+	   	wire [C_AXI_DATA_WIDTH-1:0]       t_axi_wd_wdata;    // Write data
+	   	wire [C_AXI_DATA_WIDTH/8-1:0]     t_axi_wd_wstrb;    // Write strobes
+	   	wire                              t_axi_wd_wlast;    // Last write transaction   
+	   	wire                              t_axi_wd_wvalid;   // Write valid
+	  
+	// AXI write response channel signals
+	   	wire  [C_AXI_ID_WIDTH-1:0]         t_axi_wb_bid;     // Response ID
+	   	wire  [1:0]                        t_axi_wb_bresp;   // Write response
+	   	wire                               t_axi_wb_bvalid;  // Write reponse valid
+	   	wire                               t_axi_wb_bready;  // Response ready
+	  
+	// AXI read address channel signals
+	   	wire                               t_axi_rready;     // Read address ready
+	   	wire [C_AXI_ID_WIDTH-1:0]          t_axi_rid;        // Read ID
+	   	wire [C_AXI_ADDR_WIDTH-1:0]        t_axi_raddr;      // Read address
+	   	wire [7:0]                         t_axi_rlen;       // Read Burst Length
+	   	wire [2:0]                         t_axi_rsize;      // Read Burst size
+	   	wire [1:0]                         t_axi_rburst;     // Read Burst type
+	   	wire [1:0]                         t_axi_rlock;      // Read lock type
+	   	wire [3:0]                         t_axi_rcache;     // Read Cache type
+	   	wire [2:0]                         t_axi_rprot;      // Read Protection type
+	   	wire                               t_axi_rvalid;     // Read address valid
+	    wire [3:0]						   t_axi_rqos;
+
+	// AXI read data channel signals   
+	   	wire  [C_AXI_ID_WIDTH-1:0]         t_axi_rd_bid;     // Response ID
+	   	wire  [1:0]                        t_axi_rd_rresp;   // Read response
+	   	wire                               t_axi_rd_rvalid;  // Read reponse valid
+	   	wire  [C_AXI_DATA_WIDTH-1:0]       t_axi_rd_rdata;   // Read data
+	   	wire                               t_axi_rd_rlast;   // Read last
+	   	wire                               t_axi_rd_rready;  // Read Response ready
+
+
 
 	assign	m_axi_wqos	=	0;
 	assign	m_axi_rqos	=	0;

@@ -37,13 +37,15 @@ module RX_UDP#(
     // DATA FLAG
     parameter FLAG_MOTOR           =   32'hE1EC_0C0D,
     parameter FLAG_AD              =   32'hAD86_86DA,
+    parameter FLAG_ETHLOOP         =   32'hEEBA_EEBA,
     // ETH receive channel setting
     parameter C_ADDR_SUMOFFSET     =   32'h0000_1000,
     parameter C_ADDR_MOTOR2ETH     =   32'h0000_0000,
     parameter C_ADDR_AD2ETH        =   32'h1000_0000,
      // ETH send channel setting
     parameter C_ADDR_ETH2MOTOR     =   32'hE000_0000,
-    parameter C_ADDR_ETH2AD        =   32'hF000_0000           
+    parameter C_ADDR_ETH2AD        =   32'hF000_0000,
+    parameter C_ADDR_ETHLOOP       =   32'h2000_0000          
     )
 (
     input   sys_clk,
@@ -494,7 +496,7 @@ module RX_UDP#(
 				end
 				m_write_next[RX_UDP_HEADER]	:	begin 
 		            if (udp_word_cnt == UDP_WORD + FLAG_WORD) begin
-	            		if (rx_udp_dp == FPGA_DP && (udp_data_flag == FLAG_AD || udp_data_flag == FLAG_MOTOR)) begin
+	            		if (rx_udp_dp == FPGA_DP && (udp_data_flag == FLAG_AD || udp_data_flag == FLAG_MOTOR || udp_data_flag == FLAG_ETHLOOP)) begin
 	                        flag_frame_err        <=  0;
 	                        flag_udp_header_over  <=  1; 
 	            		end
@@ -633,6 +635,7 @@ module RX_UDP#(
 			case (udp_data_flag)
 			 	FLAG_AD		:	wr_waddr	<=	C_ADDR_ETH2AD;
 			 	FLAG_MOTOR	:	wr_waddr	<=	C_ADDR_ETH2MOTOR;
+			 	FLAG_ETHLOOP:	wr_waddr	<=	C_ADDR_ETHLOOP;
 			 	default : wr_waddr	<=	0;
 			 endcase 			 	
 			wr_wvalid	<=	1;
@@ -649,6 +652,7 @@ module RX_UDP#(
 		 	case (udp_data_flag)
 		 	 	FLAG_AD		:	wr_wid	<=	1;
 		 	 	FLAG_MOTOR	:	wr_wid	<=	2;
+		 	 	FLAG_ETHLOOP:	wr_wid	<=	3;
 		 	 	default : wr_wid	<=	0;
 		 	 endcase 
 		 else
