@@ -51,49 +51,49 @@ module TX_UDP#(
     input   sys_rst,  // synchronous reset active high
 
 // AXI write address channel signals
-   	output                            	axi_wready, // Indicates slave is ready to accept a 
-   	input [C_AXI_ID_WIDTH-1:0]        	axi_wid,    // Write ID
-   	input [C_AXI_ADDR_WIDTH-1:0]      	axi_waddr,  // Write address
-   	input [7:0]                       	axi_wlen,   // Write Burst Length
-   	input [2:0]                       	axi_wsize,  // Write Burst size
-   	input [1:0]                       	axi_wburst, // Write Burst type
-   	input [1:0]                       	axi_wlock,  // Write lock type
-   	input [3:0]                       	axi_wcache, // Write Cache type
-   	input [2:0]                       	axi_wprot,  // Write Protection type
-   	input                             	axi_wvalid, // Write address valid
+   	output                            	saxi_wready, // Indicates slave is ready to accept a 
+   	input [C_AXI_ID_WIDTH-1:0]        	saxi_wid,    // Write ID
+   	input [C_AXI_ADDR_WIDTH-1:0]      	saxi_waddr,  // Write address
+   	input [7:0]                       	saxi_wlen,   // Write Burst Length
+   	input [2:0]                       	saxi_wsize,  // Write Burst size
+   	input [1:0]                       	saxi_wburst, // Write Burst type
+   	input [1:0]                       	saxi_wlock,  // Write lock type
+   	input [3:0]                       	saxi_wcache, // Write Cache type
+   	input [2:0]                       	saxi_wprot,  // Write Protection type
+   	input                             	saxi_wvalid, // Write address valid
   
 // AXI write data channel signals
-   	output                            	axi_wd_wready,  // Write data ready
-   	input [C_AXI_DATA_WIDTH-1:0]      	axi_wd_wdata,    // Write data
-   	input [C_AXI_DATA_WIDTH/8-1:0]    	axi_wd_wstrb,    // Write strobes
-   	input                             	axi_wd_wlast,    // Last write transaction   
-   	input                             	axi_wd_wvalid,   // Write valid
+   	output                            	saxi_wd_wready,  // Write data ready
+   	input [C_AXI_DATA_WIDTH-1:0]      	saxi_wd_wdata,    // Write data
+   	input [C_AXI_DATA_WIDTH/8-1:0]    	saxi_wd_wstrb,    // Write strobes
+   	input                             	saxi_wd_wlast,    // Last write transaction   
+   	input                             	saxi_wd_wvalid,   // Write valid
   
 // AXI write response channel signals
-   	output  [C_AXI_ID_WIDTH-1:0]      	axi_wb_bid,     // Response ID
-   	output  [1:0]                     	axi_wb_bresp,   // Write response
-   	output                            	axi_wb_bvalid,  // Write reponse valid
-   	input                             	axi_wb_bready,  // Response ready
+   	output  [C_AXI_ID_WIDTH-1:0]      	saxi_wb_bid,     // Response ID
+   	output  [1:0]                     	saxi_wb_bresp,   // Write response
+   	output                            	saxi_wb_bvalid,  // Write reponse valid
+   	input                             	saxi_wb_bready,  // Response ready
   
 // AXI read address channel signals
-   	output                            	axi_rready,     // Read address ready
-   	input [C_AXI_ID_WIDTH-1:0]        	axi_rid,        // Read ID
-   	input [C_AXI_ADDR_WIDTH-1:0]      	axi_raddr,      // Read address
-   	input [7:0]                       	axi_rlen,       // Read Burst Length
-   	input [2:0]                       	axi_rsize,      // Read Burst size
-   	input [1:0]                       	axi_rburst,     // Read Burst type
-   	input [1:0]                       	axi_rlock,      // Read lock type
-   	input [3:0]                       	axi_rcache,     // Read Cache type
-   	input [2:0]                       	axi_rprot,      // Read Protection type
-   	input                             	axi_rvalid,     // Read address valid
+   	output                            	saxi_rready,     // Read address ready
+   	input [C_AXI_ID_WIDTH-1:0]        	saxi_rid,        // Read ID
+   	input [C_AXI_ADDR_WIDTH-1:0]      	saxi_raddr,      // Read address
+   	input [7:0]                       	saxi_rlen,       // Read Burst Length
+   	input [2:0]                       	saxi_rsize,      // Read Burst size
+   	input [1:0]                       	saxi_rburst,     // Read Burst type
+   	input [1:0]                       	saxi_rlock,      // Read lock type
+   	input [3:0]                       	saxi_rcache,     // Read Cache type
+   	input [2:0]                       	saxi_rprot,      // Read Protection type
+   	input                             	saxi_rvalid,     // Read address valid
   
 // AXI read data channel signals   
-   	output  [C_AXI_ID_WIDTH-1:0]       	axi_rd_bid,     // Response ID
-   	output  [1:0]                      	axi_rd_rresp,   // Read response
-   	output                             	axi_rd_rvalid,  // Read reponse valid
-   	output  [C_AXI_DATA_WIDTH-1:0]     	axi_rd_rdata,   // Read data
-   	output                             	axi_rd_rlast,   // Read last
-   	input                              	axi_rd_rready,   // Read Response ready
+   	output  [C_AXI_ID_WIDTH-1:0]       	saxi_rd_bid,     // Response ID
+   	output  [1:0]                      	saxi_rd_rresp,   // Read response
+   	output                             	saxi_rd_rvalid,  // Read reponse valid
+   	output  [C_AXI_DATA_WIDTH-1:0]     	saxi_rd_rdata,   // Read data
+   	output                             	saxi_rd_rlast,   // Read last
+   	input                              	saxi_rd_rready,   // Read Response ready
 
 	// AXIS TX RGMII
     output   [7:0]   					rgmii_tx_data,
@@ -184,7 +184,7 @@ module TX_UDP#(
 									WRITE_TIME_OUT = 4'd8,
 									TX_ARP         = 4'd9;									
 	//	use one-hot encode								
-   	reg [9:0]                       write_state      =   0,
+   		(* keep="true" *) reg [9:0]                       write_state      =   0,
 									write_next       =   0;
 
 	reg [WATCH_DOG_WIDTH : 0]       wt_watch_dog_cnt=   0;          
@@ -192,12 +192,12 @@ module TX_UDP#(
 									trig_arp_start	=	1'b0;
 
 	//	data sum will be transfered before data
- 	reg [3:0]						flag_data_sum	 =	 0;
+ 	(* keep="true" *) reg [3:0]						flag_data_sum	 =	 0;
 
    	reg [7:0]                       write_data_cnt   =   0;
 
-    //	tx_wd_cnt : the counter of rgmii_rx_data make up single axi_wd_wdata, begin with 0   
-  	reg	[AXI_SIZE-1 : 0]				tx_wd_cnt	=	0;
+    //	tx_wd_cnt : the counter of rgmii_rx_data make up single saxi_wd_wdata, begin with 0   
+  	(* keep="true" *) reg	[AXI_SIZE-1 : 0]				tx_wd_cnt = 0;
 
 //*****************************************************************************
 // RGMII Internal register and wire declarations
@@ -244,7 +244,7 @@ module TX_UDP#(
 	reg [159:0] ip_temp       =   0; 
 	reg [15:0]  ip_identif    =   0; 
 		//	udp header
-	reg [63:0]  udp_temp      =   {FPGA_SP,FPGA_DP,32'h0};
+	reg [63:0]  udp_temp      =   0;
 	reg [31:0]  udp_sum       =   0;
 	reg [15:0]  udp_len       =   0;
 	reg [31:0]  udp_flag      =   0;
@@ -252,7 +252,7 @@ module TX_UDP#(
 		//	arp
 	reg [223:0] arp_temp      =	0;   
 		//	counter
-	reg [15:0]  tx_word_cnt   =	0;
+	(* keep="true" *) reg [15:0]  tx_word_cnt   =	0;
 		// ports
 	reg [7:0]   o_rgmii_data  =   0;  
 	reg         o_rgmii_valid =   1'b0;
@@ -333,15 +333,15 @@ module TX_UDP#(
 		if(sys_rst) begin
 			trig_udp_start <= 0;
 		end else begin
-			trig_udp_start <= axi_wvalid;
+			trig_udp_start <= saxi_wvalid;
 		end
 	end
 
 	always @(posedge sys_clk) begin
-		if (trig_arp)
-			trig_arp_start	<=	1;
-		else if (flag_arp_over)
+		if (sys_rst || flag_arp_over)
 			trig_arp_start	<=	0;
+		else if (trig_arp)
+			trig_arp_start	<=	1;
 		else
 			trig_arp_start	<=	trig_arp_start;
 	end	
@@ -364,7 +364,7 @@ module TX_UDP#(
 					write_next[WRITE_ADDR]		=	1;
 				else if (trig_arp_start)
 					write_next[TX_WAIT]			=	1;
-				else if (flag_data_sum[2])
+				else if (flag_data_sum[2])							//	ETHLOOP
 					write_next[TX_WAIT]			=	1;
 				else
 					write_next[WRITE_IDLE]		=	1;
@@ -410,7 +410,7 @@ module TX_UDP#(
 			end
 
 			write_state[WRITE_DATA] :	begin 
-				if (flag_data_over && flag_data_sum[2] && flag_wait_over)
+				if (flag_data_over && flag_data_sum[2] && flag_wait_over)	//	ETHLOOP 
 					write_next[WRITE_IDLE]		=	1;
 				else if (flag_data_over)
 					write_next[WRITE_RESPONSE]	=	1;
@@ -419,7 +419,7 @@ module TX_UDP#(
 			end
 
 			write_state[WRITE_RESPONSE]	:	begin 
-				if (axi_wb_bvalid && axi_wb_bready)
+				if (saxi_wb_bvalid && saxi_wb_bready)
 					write_next[WRITE_IDLE]		=	1;
 				else
 					write_next[WRITE_RESPONSE]	=	1;			
@@ -445,7 +445,7 @@ module TX_UDP#(
 		if(sys_rst || trig_package_rst) begin
 			package_cnt <= 0;
 		end else begin
-			if (write_state[WRITE_RESPONSE] && write_next[WRITE_IDLE] && flag_data_sum[0])
+			if (write_state[WRITE_RESPONSE] && write_next[WRITE_IDLE] && (flag_data_sum == 1))
 				package_cnt <= package_cnt + 1;
 			else
 				package_cnt <= package_cnt;
@@ -471,6 +471,8 @@ module TX_UDP#(
 			trig_udp_cks_d <= 0;
 			data_sum       <= 0;
 			eth_loop_data  <= 0;
+			udp_temp[63:48]<= FPGA_SP;
+			udp_temp[47:32]<= FPGA_DP;
 		end else begin
 			trig_udp_cks_d	<=	trig_udp_cks;
 			case (1)
@@ -487,7 +489,7 @@ module TX_UDP#(
 					trig_udp_cks		 <=	0;
 
 					eth_temp             <= 0;
-					ip_temp              <= 0; 
+					ip_temp              <= 0;										
 					udp_temp[31:00]		 <= 0;
 					data_sum			 <=	data_sum;
 					udp_sum              <= 0;
@@ -501,13 +503,13 @@ module TX_UDP#(
 				end
 
 				write_next[WRITE_ADDR]	:	begin 
-					if (axi_wvalid && axi_wready) begin
+					if (saxi_wvalid && saxi_wready) begin
 						flag_addr_over       <= 1;
-					 	case (axi_waddr)
-					 	 	C_ADDR_AD2ETH		:	flag_data_sum[0]	<=	1;
-					 	 	C_ADDR_MOTOR2ETH	:	flag_data_sum[1]	<=	1;
+					 	case (saxi_waddr)
+					 	 	C_ADDR_AD2ETH		+ C_ADDR_SUMOFFSET:	flag_data_sum[0]	<=	1;
+					 	 	C_ADDR_MOTOR2ETH	+ C_ADDR_SUMOFFSET:	flag_data_sum[1]	<=	1;
 					 	 	C_ADDR_ETHLOOP		:	flag_data_sum[2]	<=	1;
-					 	 	(C_ADDR_AD2ETH + C_ADDR_SUMOFFSET),(C_ADDR_MOTOR2ETH + C_ADDR_SUMOFFSET)
+					 	 	C_ADDR_AD2ETH,C_ADDR_MOTOR2ETH
 					 	 						:	flag_data_sum[3]	<=	1;	//	receive data
 					 	 	default : flag_data_sum	<=	0;	
 					 	 endcase 			 	
@@ -638,8 +640,8 @@ module TX_UDP#(
 					//	receive	data sum 
 					if (|flag_data_sum[1:0] && !flag_wait_over) begin 		
 						if (AXI_ADDR_INC >= 4 ) begin				// 	C_AXI_DATA_WIDTH >= 32
-							if (axi_wd_wvalid && axi_wd_wready) begin 
-								data_sum		<=	axi_wd_wdata[31:0];
+							if (saxi_wd_wvalid && saxi_wd_wready) begin 
+								data_sum		<=	saxi_wd_wdata[31:0];
 								flag_data_over	<=	1;								
 							end
 							else begin 
@@ -648,13 +650,13 @@ module TX_UDP#(
 							end
 						end
 						else begin 
-							if (axi_wd_wvalid && axi_wd_wready)
+							if (saxi_wd_wvalid && saxi_wd_wready)
 								tx_word_cnt	<=	tx_word_cnt + 1;
 							else
 								tx_word_cnt	<=	tx_word_cnt;
 
 							if (tx_word_cnt <= {SUM_SIZE{1'b1}})  
-								data_sum[31-tx_word_cnt*C_AXI_DATA_WIDTH -: C_AXI_DATA_WIDTH]		<=	axi_wd_wdata;																
+								data_sum[31-tx_word_cnt*C_AXI_DATA_WIDTH -: C_AXI_DATA_WIDTH]		<=	saxi_wd_wdata;																
 							else  								
 								data_sum	<=	data_sum;
 
@@ -663,10 +665,10 @@ module TX_UDP#(
 					end
 					//	eth loop
 					else if (flag_data_sum[2] && !flag_wait_over) begin 
-						if (axi_wd_wvalid && axi_wd_wready) begin 
+						if (saxi_wd_wvalid && saxi_wd_wready) begin 
 							tx_word_cnt	<=	tx_word_cnt + 1;
-							data_sum	<=	data_sum + axi_wd_wdata[15:0] + axi_wd_wdata[31:16] + axi_wd_wdata[47:32] + axi_wd_wdata[63:48];
-							eth_loop_data[127-tx_word_cnt*64 -: 64]		<=	axi_wd_wdata;
+							data_sum	<=	data_sum + saxi_wd_wdata[15:0] + saxi_wd_wdata[31:16] + saxi_wd_wdata[47:32] + saxi_wd_wdata[63:48];
+							eth_loop_data[127-tx_word_cnt*64 -: 64]		<=	saxi_wd_wdata;
 						end							
 						else begin 
 							tx_word_cnt   <=  tx_word_cnt;
@@ -762,10 +764,10 @@ module TX_UDP#(
 
 	always @(*) begin 
 		if (write_state[WRITE_DATA] && AXI_SIZE > 0) 
-			if (flag_data_sum[0])
-				tx_wd_cnt = tx_word_cnt[AXI_SIZE-1:0];
-			else if (flag_data_sum[1])
-				tx_wd_cnt = tx_word_cnt[AXI_SIZE-1:0] - 4;
+			if (flag_data_sum[0])							//	AD
+				tx_wd_cnt = tx_word_cnt[AXI_SIZE-1:0];		//	匹配总线位宽 标识+包号为8 刚好为总线8*8bit
+			else if (flag_data_sum[1])						//	MOTOR
+				tx_wd_cnt = tx_word_cnt[AXI_SIZE-1:0] - 4;	//	减去标志位占用
 			else
 				tx_wd_cnt = 0;
 		else
@@ -801,8 +803,8 @@ module TX_UDP#(
 		if(sys_rst) begin
 			 wr_wid	<=	0;
 		end else begin
-			 if (axi_wvalid && axi_wready)
-			 	wr_wid	<=	axi_wid;
+			 if (saxi_wvalid && saxi_wready)
+			 	wr_wid	<=	saxi_wid;
 			 else
 			 	wr_wid	<=	wr_wid;
 		end
@@ -813,8 +815,8 @@ module TX_UDP#(
 		if(sys_rst) begin
 			 wr_wlen	<=	0;
 		end else begin
-			 if (axi_wvalid && axi_wready)
-			 	wr_wlen	<=	axi_wlen + 1;
+			 if (saxi_wvalid && saxi_wready)
+			 	wr_wlen	<=	saxi_wlen + 1;
 			 else
 			 	wr_wlen	<=	wr_wlen;
 		end
@@ -827,12 +829,12 @@ module TX_UDP#(
 		if(sys_rst) begin
 			wr_wburst	<=	0;
 		end else begin
-			wr_wburst	<=	axi_wburst;	
+			wr_wburst	<=	saxi_wburst;	
 		end
 	end	
 
 	//	output
-	assign	axi_wready	=	wr_wready;
+	assign	saxi_wready	=	wr_wready;
 //*****************************************************************************
 // Write channel data signals
 //*****************************************************************************	
@@ -841,8 +843,8 @@ module TX_UDP#(
 		if (write_next[WRITE_IDLE])
 			write_data_cnt	<=	0;
 		else if (write_state[WRITE_ADDR] && (write_next[WRITE_DATA] || write_next[TX_WAIT]))
-			write_data_cnt	<=	axi_wlen;
-		else if (axi_wd_wvalid && axi_wd_wready)
+			write_data_cnt	<=	saxi_wlen;
+		else if (saxi_wd_wvalid && saxi_wd_wready)
 			write_data_cnt	<=	write_data_cnt - 1;
 		else
 			write_data_cnt	<=	write_data_cnt;
@@ -850,12 +852,12 @@ module TX_UDP#(
 
 	//	wd_wready
 	always @(posedge sys_clk) begin
-		if (write_state[WRITE_DATA] && (tx_wd_cnt == ({AXI_SIZE{1'b1}}-1)))
-			wd_wready	<=	axi_wd_wvalid;		
-		else if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && !flag_data_sum[3] && (tx_word_cnt == 0))
-			wd_wready	<=	axi_wd_wvalid;
-		else if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && flag_data_sum[2])
-			wd_wready	<=	axi_wd_wvalid;
+		if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && (tx_wd_cnt == ({AXI_SIZE{1'b1}}-1)))		//	接收总线数据，对应rgmii_data第7字节为高
+			wd_wready	<=	saxi_wd_wvalid;		
+		else if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && !flag_data_sum[3] && (tx_word_cnt == 0))	//	接收数据和
+			wd_wready	<=	saxi_wd_wvalid;
+		else if (write_state[WRITE_DATA] && write_next[WRITE_DATA] && flag_data_sum[2])	//	ETHLOOP
+			wd_wready	<=	saxi_wd_wvalid;
 		else
 			wd_wready	<=	0;
 	end	
@@ -863,15 +865,15 @@ module TX_UDP#(
 	//	wd_wdata
 	always @(posedge sys_clk) begin
 		if (write_state[WRITE_DATA] && write_next[WRITE_DATA])
-			if (axi_wd_wready && axi_wd_wvalid)
-				wd_wdata	<=	axi_wd_wdata;
+			if (saxi_wd_wready && saxi_wd_wvalid)
+				wd_wdata	<=	saxi_wd_wdata;
 			else
 				wd_wdata	<=	wd_wdata;
 		else
 			wd_wdata	<=	0;
 	end
 	//	output
-	assign	axi_wd_wready	=	wd_wready;
+	assign	saxi_wd_wready	=	wd_wready;
 //*****************************************************************************
 // Write channel response signals
 //*****************************************************************************	
@@ -882,8 +884,8 @@ module TX_UDP#(
 			wb_bvalid <= 0;
 	end
 
-	assign	axi_wb_bvalid	=	wb_bvalid;
-	assign	axi_wb_bid		=	wb_bid;
-	assign	axi_wb_bresp	=	wb_bresp;
+	assign	saxi_wb_bvalid	=	wb_bvalid;
+	assign	saxi_wb_bid		=	wb_bid;
+	assign	saxi_wb_bresp	=	wb_bresp;
 
 endmodule

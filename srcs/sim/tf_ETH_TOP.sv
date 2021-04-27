@@ -50,86 +50,90 @@ module tb_ETH_TOP (); /* this is automatically generated */
 	parameter      WATCH_DOG_WIDTH = 12;
 	parameter           FLAG_MOTOR = 32'hE1EC_0C0D;
 	parameter              FLAG_AD = 32'hAD86_86DA;
+	parameter         FLAG_ETHLOOP = 32'hEEBA_EEBA;
 	parameter     C_ADDR_SUMOFFSET = 32'h0000_1000;
 	parameter     C_ADDR_MOTOR2ETH = 32'h0000_0000;
 	parameter        C_ADDR_AD2ETH = 32'h1000_0000;
+	parameter       C_ADDR_ETHLOOP = 32'h2000_0000;
 	parameter     C_ADDR_ETH2MOTOR = 32'hE000_0000;
 	parameter        C_ADDR_ETH2AD = 32'hF000_0000;
 
-	logic                          m_axi_wready;
-	logic     [C_AXI_ID_WIDTH-1:0] m_axi_wid;
-	logic   [C_AXI_ADDR_WIDTH-1:0] m_axi_waddr;
-	logic                    [7:0] m_axi_wlen;
-	logic                    [2:0] m_axi_wsize;
-	logic                    [1:0] m_axi_wburst;
-	logic                    [1:0] m_axi_wlock;
-	logic                    [3:0] m_axi_wcache;
-	logic                    [2:0] m_axi_wprot;
-	logic                          m_axi_wvalid;
-	logic                    [3:0] m_axi_wqos;
-	logic                          m_axi_wd_wready;
-	logic   [C_AXI_DATA_WIDTH-1:0] m_axi_wd_wdata;
-	logic [C_AXI_DATA_WIDTH/8-1:0] m_axi_wd_wstrb;
-	logic                          m_axi_wd_wlast;
-	logic                          m_axi_wd_wvalid;
-	logic     [C_AXI_ID_WIDTH-1:0] m_axi_wb_bid;
-	logic                    [1:0] m_axi_wb_bresp;
-	logic                          m_axi_wb_bvalid;
-	logic                          m_axi_wb_bready;
-	logic                          m_axi_rready;
-	logic     [C_AXI_ID_WIDTH-1:0] m_axi_rid;
-	logic   [C_AXI_ADDR_WIDTH-1:0] m_axi_raddr;
-	logic                    [7:0] m_axi_rlen;
-	logic                    [2:0] m_axi_rsize;
-	logic                    [1:0] m_axi_rburst;
-	logic                    [1:0] m_axi_rlock;
-	logic                    [3:0] m_axi_rcache;
-	logic                    [2:0] m_axi_rprot;
-	logic                          m_axi_rvalid;
-	logic                    [3:0] m_axi_rqos;
-	logic     [C_AXI_ID_WIDTH-1:0] m_axi_rd_bid;
-	logic                    [1:0] m_axi_rd_rresp;
-	logic                          m_axi_rd_rvalid;
-	logic   [C_AXI_DATA_WIDTH-1:0] m_axi_rd_rdata;
-	logic                          m_axi_rd_rlast;
-	logic                          m_axi_rd_rready;
-	logic                          s_axi_wready;
-	logic     [C_AXI_ID_WIDTH-1:0] s_axi_wid;
-	logic   [C_AXI_ADDR_WIDTH-1:0] s_axi_waddr;
-	logic                    [7:0] s_axi_wlen;
-	logic                    [2:0] s_axi_wsize;
-	logic                    [1:0] s_axi_wburst;
-	logic                    [1:0] s_axi_wlock;
-	logic                    [3:0] s_axi_wcache;
-	logic                    [2:0] s_axi_wprot;
-	logic                          s_axi_wvalid;
-	logic                    [3:0] s_axi_wqos;
-	logic                          s_axi_wd_wready;
-	logic   [C_AXI_DATA_WIDTH-1:0] s_axi_wd_wdata;
-	logic [C_AXI_DATA_WIDTH/8-1:0] s_axi_wd_wstrb;
-	logic                          s_axi_wd_wlast;
-	logic                          s_axi_wd_wvalid;
-	logic     [C_AXI_ID_WIDTH-1:0] s_axi_wb_bid;
-	logic                    [1:0] s_axi_wb_bresp;
-	logic                          s_axi_wb_bvalid;
-	logic                          s_axi_wb_bready;
-	logic                          s_axi_rready;
-	logic     [C_AXI_ID_WIDTH-1:0] s_axi_rid;
-	logic   [C_AXI_ADDR_WIDTH-1:0] s_axi_raddr;
-	logic                    [7:0] s_axi_rlen;
-	logic                    [2:0] s_axi_rsize;
-	logic                    [1:0] s_axi_rburst;
-	logic                    [1:0] s_axi_rlock;
-	logic                    [3:0] s_axi_rcache;
-	logic                    [2:0] s_axi_rprot;
-	logic                          s_axi_rvalid;
-	logic                    [3:0] s_axi_rqos;
-	logic     [C_AXI_ID_WIDTH-1:0] s_axi_rd_bid;
-	logic                    [1:0] s_axi_rd_rresp;
-	logic                          s_axi_rd_rvalid;
-	logic   [C_AXI_DATA_WIDTH-1:0] s_axi_rd_rdata;
-	logic                          s_axi_rd_rlast;
-	logic                          s_axi_rd_rready;
+	logic                          sys_clk;
+	logic                          sys_rst;
+	logic                          maxi_wready;
+	logic     [C_AXI_ID_WIDTH-1:0] maxi_wid;
+	logic   [C_AXI_ADDR_WIDTH-1:0] maxi_waddr;
+	logic                    [7:0] maxi_wlen;
+	logic                    [2:0] maxi_wsize;
+	logic                    [1:0] maxi_wburst;
+	logic                    [1:0] maxi_wlock;
+	logic                    [3:0] maxi_wcache;
+	logic                    [2:0] maxi_wprot;
+	logic                          maxi_wvalid;
+	logic                    [3:0] maxi_wqos;
+	logic                          maxi_wd_wready;
+	logic   [C_AXI_DATA_WIDTH-1:0] maxi_wd_wdata;
+	logic [C_AXI_DATA_WIDTH/8-1:0] maxi_wd_wstrb;
+	logic                          maxi_wd_wlast;
+	logic                          maxi_wd_wvalid;
+	logic     [C_AXI_ID_WIDTH-1:0] maxi_wb_bid;
+	logic                    [1:0] maxi_wb_bresp;
+	logic                          maxi_wb_bvalid;
+	logic                          maxi_wb_bready;
+	logic                          maxi_rready;
+	logic     [C_AXI_ID_WIDTH-1:0] maxi_rid;
+	logic   [C_AXI_ADDR_WIDTH-1:0] maxi_raddr;
+	logic                    [7:0] maxi_rlen;
+	logic                    [2:0] maxi_rsize;
+	logic                    [1:0] maxi_rburst;
+	logic                    [1:0] maxi_rlock;
+	logic                    [3:0] maxi_rcache;
+	logic                    [2:0] maxi_rprot;
+	logic                          maxi_rvalid;
+	logic                    [3:0] maxi_rqos;
+	logic     [C_AXI_ID_WIDTH-1:0] maxi_rd_bid;
+	logic                    [1:0] maxi_rd_rresp;
+	logic                          maxi_rd_rvalid;
+	logic   [C_AXI_DATA_WIDTH-1:0] maxi_rd_rdata;
+	logic                          maxi_rd_rlast;
+	logic                          maxi_rd_rready;
+	logic                          saxi_wready;
+	logic     [C_AXI_ID_WIDTH-1:0] saxi_wid;
+	logic   [C_AXI_ADDR_WIDTH-1:0] saxi_waddr;
+	logic                    [7:0] saxi_wlen;
+	logic                    [2:0] saxi_wsize;
+	logic                    [1:0] saxi_wburst;
+	logic                    [1:0] saxi_wlock;
+	logic                    [3:0] saxi_wcache;
+	logic                    [2:0] saxi_wprot;
+	logic                          saxi_wvalid;
+	logic                    [3:0] saxi_wqos;
+	logic                          saxi_wd_wready;
+	logic   [C_AXI_DATA_WIDTH-1:0] saxi_wd_wdata;
+	logic [C_AXI_DATA_WIDTH/8-1:0] saxi_wd_wstrb;
+	logic                          saxi_wd_wlast;
+	logic                          saxi_wd_wvalid;
+	logic     [C_AXI_ID_WIDTH-1:0] saxi_wb_bid;
+	logic                    [1:0] saxi_wb_bresp;
+	logic                          saxi_wb_bvalid;
+	logic                          saxi_wb_bready;
+	logic                          saxi_rready;
+	logic     [C_AXI_ID_WIDTH-1:0] saxi_rid;
+	logic   [C_AXI_ADDR_WIDTH-1:0] saxi_raddr;
+	logic                    [7:0] saxi_rlen;
+	logic                    [2:0] saxi_rsize;
+	logic                    [1:0] saxi_rburst;
+	logic                    [1:0] saxi_rlock;
+	logic                    [3:0] saxi_rcache;
+	logic                    [2:0] saxi_rprot;
+	logic                          saxi_rvalid;
+	logic                    [3:0] saxi_rqos;
+	logic     [C_AXI_ID_WIDTH-1:0] saxi_rd_bid;
+	logic                    [1:0] saxi_rd_rresp;
+	logic                          saxi_rd_rvalid;
+	logic   [C_AXI_DATA_WIDTH-1:0] saxi_rd_rdata;
+	logic                          saxi_rd_rlast;
+	logic                          saxi_rd_rready;
 	logic                    [7:0] rgmii_rx_data;
 	logic                          rgmii_rx_valid;
 	logic                          rgmii_rx_last;
@@ -154,196 +158,155 @@ module tb_ETH_TOP (); /* this is automatically generated */
 			.WATCH_DOG_WIDTH(WATCH_DOG_WIDTH),
 			.FLAG_MOTOR(FLAG_MOTOR),
 			.FLAG_AD(FLAG_AD),
+			.FLAG_ETHLOOP(FLAG_ETHLOOP),
 			.C_ADDR_SUMOFFSET(C_ADDR_SUMOFFSET),
 			.C_ADDR_MOTOR2ETH(C_ADDR_MOTOR2ETH),
 			.C_ADDR_AD2ETH(C_ADDR_AD2ETH),
+			.C_ADDR_ETHLOOP(C_ADDR_ETHLOOP),
 			.C_ADDR_ETH2MOTOR(C_ADDR_ETH2MOTOR),
 			.C_ADDR_ETH2AD(C_ADDR_ETH2AD)
 		) inst_ETH_TOP (
-			.sys_clk         (sys_clk),
-			.sys_rst         (sys_rst),
-			.m_axi_wready    (m_axi_wready),
-			.m_axi_wid       (m_axi_wid),
-			.m_axi_waddr     (m_axi_waddr),
-			.m_axi_wlen      (m_axi_wlen),
-			.m_axi_wsize     (m_axi_wsize),
-			.m_axi_wburst    (m_axi_wburst),
-			.m_axi_wlock     (m_axi_wlock),
-			.m_axi_wcache    (m_axi_wcache),
-			.m_axi_wprot     (m_axi_wprot),
-			.m_axi_wvalid    (m_axi_wvalid),
-			.m_axi_wqos      (m_axi_wqos),
-			.m_axi_wd_wready (m_axi_wd_wready),
-			.m_axi_wd_wdata  (m_axi_wd_wdata),
-			.m_axi_wd_wstrb  (m_axi_wd_wstrb),
-			.m_axi_wd_wlast  (m_axi_wd_wlast),
-			.m_axi_wd_wvalid (m_axi_wd_wvalid),
-			.m_axi_wb_bid    (m_axi_wb_bid),
-			.m_axi_wb_bresp  (m_axi_wb_bresp),
-			.m_axi_wb_bvalid (m_axi_wb_bvalid),
-			.m_axi_wb_bready (m_axi_wb_bready),
-			.m_axi_rready    (m_axi_rready),
-			.m_axi_rid       (m_axi_rid),
-			.m_axi_raddr     (m_axi_raddr),
-			.m_axi_rlen      (m_axi_rlen),
-			.m_axi_rsize     (m_axi_rsize),
-			.m_axi_rburst    (m_axi_rburst),
-			.m_axi_rlock     (m_axi_rlock),
-			.m_axi_rcache    (m_axi_rcache),
-			.m_axi_rprot     (m_axi_rprot),
-			.m_axi_rvalid    (m_axi_rvalid),
-			.m_axi_rqos      (m_axi_rqos),
-			.m_axi_rd_bid    (m_axi_rd_bid),
-			.m_axi_rd_rresp  (m_axi_rd_rresp),
-			.m_axi_rd_rvalid (m_axi_rd_rvalid),
-			.m_axi_rd_rdata  (m_axi_rd_rdata),
-			.m_axi_rd_rlast  (m_axi_rd_rlast),
-			.m_axi_rd_rready (m_axi_rd_rready),
-			.s_axi_wready    (s_axi_wready),
-			.s_axi_wid       (s_axi_wid),
-			.s_axi_waddr     (s_axi_waddr),
-			.s_axi_wlen      (s_axi_wlen),
-			.s_axi_wsize     (s_axi_wsize),
-			.s_axi_wburst    (s_axi_wburst),
-			.s_axi_wlock     (s_axi_wlock),
-			.s_axi_wcache    (s_axi_wcache),
-			.s_axi_wprot     (s_axi_wprot),
-			.s_axi_wvalid    (s_axi_wvalid),
-			.s_axi_wqos      (s_axi_wqos),
-			.s_axi_wd_wready (s_axi_wd_wready),
-			.s_axi_wd_wdata  (s_axi_wd_wdata),
-			.s_axi_wd_wstrb  (s_axi_wd_wstrb),
-			.s_axi_wd_wlast  (s_axi_wd_wlast),
-			.s_axi_wd_wvalid (s_axi_wd_wvalid),
-			.s_axi_wb_bid    (s_axi_wb_bid),
-			.s_axi_wb_bresp  (s_axi_wb_bresp),
-			.s_axi_wb_bvalid (s_axi_wb_bvalid),
-			.s_axi_wb_bready (s_axi_wb_bready),
-			.s_axi_rready    (s_axi_rready),
-			.s_axi_rid       (s_axi_rid),
-			.s_axi_raddr     (s_axi_raddr),
-			.s_axi_rlen      (s_axi_rlen),
-			.s_axi_rsize     (s_axi_rsize),
-			.s_axi_rburst    (s_axi_rburst),
-			.s_axi_rlock     (s_axi_rlock),
-			.s_axi_rcache    (s_axi_rcache),
-			.s_axi_rprot     (s_axi_rprot),
-			.s_axi_rvalid    (s_axi_rvalid),
-			.s_axi_rqos      (s_axi_rqos),
-			.s_axi_rd_bid    (s_axi_rd_bid),
-			.s_axi_rd_rresp  (s_axi_rd_rresp),
-			.s_axi_rd_rvalid (s_axi_rd_rvalid),
-			.s_axi_rd_rdata  (s_axi_rd_rdata),
-			.s_axi_rd_rlast  (s_axi_rd_rlast),
-			.s_axi_rd_rready (s_axi_rd_rready),
-			.rgmii_rx_data   (rgmii_rx_data),
-			.rgmii_rx_valid  (rgmii_rx_valid),
-			.rgmii_rx_last   (rgmii_rx_last),
-			.rgmii_rx_user   (rgmii_rx_user),
-			.rgmii_rx_ready  (rgmii_rx_ready),
-			.rgmii_tx_data   (rgmii_tx_data),
-			.rgmii_tx_valid  (rgmii_tx_valid),
-			.rgmii_tx_last   (rgmii_tx_last),
-			.rgmii_tx_user   (rgmii_tx_user),
-			.rgmii_tx_ready  (rgmii_tx_ready)
+			.sys_clk        (sys_clk),
+			.sys_rst        (sys_rst),
+			.maxi_wready    (maxi_wready),
+			.maxi_wid       (maxi_wid),
+			.maxi_waddr     (maxi_waddr),
+			.maxi_wlen      (maxi_wlen),
+			.maxi_wsize     (maxi_wsize),
+			.maxi_wburst    (maxi_wburst),
+			.maxi_wlock     (maxi_wlock),
+			.maxi_wcache    (maxi_wcache),
+			.maxi_wprot     (maxi_wprot),
+			.maxi_wvalid    (maxi_wvalid),
+			.maxi_wqos      (maxi_wqos),
+			.maxi_wd_wready (maxi_wd_wready),
+			.maxi_wd_wdata  (maxi_wd_wdata),
+			.maxi_wd_wstrb  (maxi_wd_wstrb),
+			.maxi_wd_wlast  (maxi_wd_wlast),
+			.maxi_wd_wvalid (maxi_wd_wvalid),
+			.maxi_wb_bid    (maxi_wb_bid),
+			.maxi_wb_bresp  (maxi_wb_bresp),
+			.maxi_wb_bvalid (maxi_wb_bvalid),
+			.maxi_wb_bready (maxi_wb_bready),
+			.maxi_rready    (maxi_rready),
+			.maxi_rid       (maxi_rid),
+			.maxi_raddr     (maxi_raddr),
+			.maxi_rlen      (maxi_rlen),
+			.maxi_rsize     (maxi_rsize),
+			.maxi_rburst    (maxi_rburst),
+			.maxi_rlock     (maxi_rlock),
+			.maxi_rcache    (maxi_rcache),
+			.maxi_rprot     (maxi_rprot),
+			.maxi_rvalid    (maxi_rvalid),
+			.maxi_rqos      (maxi_rqos),
+			.maxi_rd_bid    (maxi_rd_bid),
+			.maxi_rd_rresp  (maxi_rd_rresp),
+			.maxi_rd_rvalid (maxi_rd_rvalid),
+			.maxi_rd_rdata  (maxi_rd_rdata),
+			.maxi_rd_rlast  (maxi_rd_rlast),
+			.maxi_rd_rready (maxi_rd_rready),
+			.saxi_wready    (saxi_wready),
+			.saxi_wid       (saxi_wid),
+			.saxi_waddr     (saxi_waddr),
+			.saxi_wlen      (saxi_wlen),
+			.saxi_wsize     (saxi_wsize),
+			.saxi_wburst    (saxi_wburst),
+			.saxi_wlock     (saxi_wlock),
+			.saxi_wcache    (saxi_wcache),
+			.saxi_wprot     (saxi_wprot),
+			.saxi_wvalid    (saxi_wvalid),
+			.saxi_wqos      (saxi_wqos),
+			.saxi_wd_wready (saxi_wd_wready),
+			.saxi_wd_wdata  (saxi_wd_wdata),
+			.saxi_wd_wstrb  (saxi_wd_wstrb),
+			.saxi_wd_wlast  (saxi_wd_wlast),
+			.saxi_wd_wvalid (saxi_wd_wvalid),
+			.saxi_wb_bid    (saxi_wb_bid),
+			.saxi_wb_bresp  (saxi_wb_bresp),
+			.saxi_wb_bvalid (saxi_wb_bvalid),
+			.saxi_wb_bready (saxi_wb_bready),
+			.saxi_rready    (saxi_rready),
+			.saxi_rid       (saxi_rid),
+			.saxi_raddr     (saxi_raddr),
+			.saxi_rlen      (saxi_rlen),
+			.saxi_rsize     (saxi_rsize),
+			.saxi_rburst    (saxi_rburst),
+			.saxi_rlock     (saxi_rlock),
+			.saxi_rcache    (saxi_rcache),
+			.saxi_rprot     (saxi_rprot),
+			.saxi_rvalid    (saxi_rvalid),
+			.saxi_rqos      (saxi_rqos),
+			.saxi_rd_bid    (saxi_rd_bid),
+			.saxi_rd_rresp  (saxi_rd_rresp),
+			.saxi_rd_rvalid (saxi_rd_rvalid),
+			.saxi_rd_rdata  (saxi_rd_rdata),
+			.saxi_rd_rlast  (saxi_rd_rlast),
+			.saxi_rd_rready (saxi_rd_rready),
+			.rgmii_rx_data  (rgmii_rx_data),
+			.rgmii_rx_valid (rgmii_rx_valid),
+			.rgmii_rx_last  (rgmii_rx_last),
+			.rgmii_rx_user  (rgmii_rx_user),
+			.rgmii_rx_ready (rgmii_rx_ready),
+			.rgmii_tx_data  (rgmii_tx_data),
+			.rgmii_tx_valid (rgmii_tx_valid),
+			.rgmii_tx_last  (rgmii_tx_last),
+			.rgmii_tx_user  (rgmii_tx_user),
+			.rgmii_tx_ready (rgmii_tx_ready)
 		);
 
 	task init();
-		m_axi_wready    <= '0;
-		m_axi_wd_wready <= '0;
-		m_axi_wb_bid    <= '0;
-		m_axi_wb_bresp  <= '0;
-		m_axi_wb_bvalid <= '0;
-		m_axi_rready    <= '0;
-		m_axi_rd_bid    <= '0;
-		m_axi_rd_rresp  <= '0;
-		m_axi_rd_rvalid <= '0;
-		m_axi_rd_rdata  <= '0;
-		m_axi_rd_rlast  <= '0;
-		rgmii_rx_data   <= '0;
-		rgmii_rx_valid  <= '0;
-		rgmii_rx_last   <= '0;
-		rgmii_rx_user   <= '0;
-		s_axi_wid       <= '0;
-		s_axi_waddr     <= '0;
-		s_axi_wlen      <= '0;
-		s_axi_wsize     <= '0;
-		s_axi_wburst    <= '0;
-		s_axi_wlock     <= '0;
-		s_axi_wcache    <= '0;
-		s_axi_wprot     <= '0;
-		s_axi_wvalid    <= '0;
-		s_axi_wd_wdata  <= '0;
-		s_axi_wd_wstrb  <= '0;
-		s_axi_wd_wlast  <= '0;
-		s_axi_wd_wvalid <= '0;
-		s_axi_wb_bready <= '0;
-		s_axi_rid       <= '0;
-		s_axi_raddr     <= '0;
-		s_axi_rlen      <= '0;
-		s_axi_rsize     <= '0;
-		s_axi_rburst    <= '0;
-		s_axi_rlock     <= '0;
-		s_axi_rcache    <= '0;
-		s_axi_rprot     <= '0;
-		s_axi_rvalid    <= '0;
-		s_axi_rd_rready <= '0;
-		rgmii_tx_ready  <= '0;
+		maxi_wready    <= '0;
+		maxi_wd_wready <= '0;
+		maxi_wb_bid    <= '0;
+		maxi_wb_bresp  <= '0;
+		maxi_wb_bvalid <= '0;
+		maxi_rready    <= '0;
+		maxi_rd_bid    <= '0;
+		maxi_rd_rresp  <= '0;
+		maxi_rd_rvalid <= '0;
+		maxi_rd_rdata  <= '0;
+		maxi_rd_rlast  <= '0;
+		saxi_wid       <= '0;
+		saxi_waddr     <= '0;
+		saxi_wlen      <= '0;
+		saxi_wsize     <= '0;
+		saxi_wburst    <= '0;
+		saxi_wlock     <= '0;
+		saxi_wcache    <= '0;
+		saxi_wprot     <= '0;
+		saxi_wvalid    <= '0;
+		saxi_wqos      <= '0;
+		saxi_wd_wdata  <= '0;
+		saxi_wd_wstrb  <= '0;
+		saxi_wd_wlast  <= '0;
+		saxi_wd_wvalid <= '0;
+		saxi_wb_bready <= '0;
+		saxi_rid       <= '0;
+		saxi_raddr     <= '0;
+		saxi_rlen      <= '0;
+		saxi_rsize     <= '0;
+		saxi_rburst    <= '0;
+		saxi_rlock     <= '0;
+		saxi_rcache    <= '0;
+		saxi_rprot     <= '0;
+		saxi_rvalid    <= '0;
+		saxi_rqos      <= '0;
+		saxi_rd_rready <= '0;
+		rgmii_rx_data  <= '0;
+		rgmii_rx_valid <= '0;
+		rgmii_rx_last  <= '0;
+		rgmii_rx_user  <= '0;
+		rgmii_tx_ready <= '0;
 	endtask
 
-	task drive(int iter);
-		for(int it = 0; it < iter; it++) begin
-			m_axi_wready    <= '0;
-			m_axi_wd_wready <= '0;
-			m_axi_wb_bid    <= '0;
-			m_axi_wb_bresp  <= '0;
-			m_axi_wb_bvalid <= '0;
-			m_axi_rready    <= '0;
-			m_axi_rd_bid    <= '0;
-			m_axi_rd_rresp  <= '0;
-			m_axi_rd_rvalid <= '0;
-			m_axi_rd_rdata  <= '0;
-			m_axi_rd_rlast  <= '0;
-			rgmii_rx_data   <= '0;
-			rgmii_rx_valid  <= '0;
-			rgmii_rx_last   <= '0;
-			rgmii_rx_user   <= '0;
-			s_axi_wid       <= '0;
-			s_axi_waddr     <= '0;
-			s_axi_wlen      <= '0;
-			s_axi_wsize     <= '0;
-			s_axi_wburst    <= '0;
-			s_axi_wlock     <= '0;
-			s_axi_wcache    <= '0;
-			s_axi_wprot     <= '0;
-			s_axi_wvalid    <= '0;
-			s_axi_wd_wdata  <= '0;
-			s_axi_wd_wstrb  <= '0;
-			s_axi_wd_wlast  <= '0;
-			s_axi_wd_wvalid <= '0;
-			s_axi_wb_bready <= '0;
-			s_axi_rid       <= '0;
-			s_axi_raddr     <= '0;
-			s_axi_rlen      <= '0;
-			s_axi_rsize     <= '0;
-			s_axi_rburst    <= '0;
-			s_axi_rlock     <= '0;
-			s_axi_rcache    <= '0;
-			s_axi_rprot     <= '0;
-			s_axi_rvalid    <= '0;
-			s_axi_rd_rready <= '0;
-			rgmii_tx_ready  <= '0;
-			@(posedge sys_clk);
-		end
-	endtask
 
 	initial begin
 		// do something
 		init();
-		m_axi_wready     <= '1;
-		m_axi_wb_bid     <= '0;
-		m_axi_wb_bresp   <= '0;
-		m_axi_wb_bvalid  <= '1;			
+		maxi_wready     <= '1;
+		maxi_wb_bid     <= '0;
+		maxi_wb_bresp   <= '0;
+		maxi_wb_bvalid  <= '1;			
 	end
 
 parameter   PREAMBLE_REG    =   64'h5555_5555_5555_55d5,    //  前导码
@@ -574,6 +537,11 @@ end
 	reg [3:0]	write_state	=	0,
 				write_next 	=	0;
 
+	reg	[9:0]	time_cnt	=	0;
+	always_ff @(posedge sys_clk) begin 
+		time_cnt	<=	time_cnt + 1;
+	end
+
 	always @(posedge sys_clk) begin
 		if(sys_rst) begin
 			write_state <= 1;
@@ -586,25 +554,28 @@ end
 		write_next = 0;
 		case (1)
 			write_state[W_IDLE]	:	begin 
-				write_next[W_ADDR]	=	1;
+				if (time_cnt == 10'h3FF || flag_sum)
+					write_next[W_ADDR]	=	1;
+				else
+					write_next[W_IDLE]	=	1;
 			end
 
 			write_state[W_ADDR]	:	begin 
-				if (s_axi_wvalid && s_axi_wready)
+				if (saxi_wvalid && saxi_wready)
 					write_next[W_DATA]	=	1;
 				else
 					write_next[W_ADDR]	=	1;
 			end
 
 			write_state[W_DATA]	:	begin 
-				if (s_axi_wd_wvalid && s_axi_wd_wready && s_axi_wd_wlast)
+				if (saxi_wd_wvalid && saxi_wd_wready && saxi_wd_wlast)
 					write_next[W_RESP]	=	1;
 				else
 					write_next[W_DATA]	=	1;
 			end
 
 			write_state[W_RESP]	:	begin 
-				if (s_axi_wb_bready && s_axi_wb_bvalid)
+				if (saxi_wb_bready && saxi_wb_bvalid)
 					write_next[W_IDLE]	=	1;
 				else
 					write_next[W_RESP]	=	1;
@@ -613,23 +584,24 @@ end
 		endcase
 	end				
 
+
 	reg	flag_sum	=	1'b0;
 	always_ff @(posedge sys_clk) begin
 		if(sys_rst) begin
-			s_axi_waddr  <= '0;
-			s_axi_wlen   <= '0;
-			s_axi_wvalid <= '0;
+			saxi_waddr  <= '0;
+			saxi_wlen   <= '0;
+			saxi_wvalid <= '0;
 			flag_sum   <=  0;
 		end else begin
-			if (write_state[W_ADDR] && !s_axi_wready) begin
-				s_axi_waddr	<=	flag_sum ? C_ADDR_AD2ETH : C_ADDR_AD2ETH + C_ADDR_SUMOFFSET;
-				s_axi_wlen	<=	flag_sum ? 0 : 32-1;
-				s_axi_wvalid	<=	1;
+			if (write_state[W_ADDR] && !saxi_wready) begin
+				saxi_waddr	<=	flag_sum ? C_ADDR_AD2ETH + C_ADDR_SUMOFFSET: C_ADDR_AD2ETH;
+				saxi_wlen	<=	flag_sum ? 0 : 32-1;
+				saxi_wvalid	<=	1;
 			end
 			else begin 
-				s_axi_waddr      <= '0;
-				s_axi_wlen       <= s_axi_wlen;
-				s_axi_wvalid     <= '0;
+				saxi_waddr      <= '0;
+				saxi_wlen       <= saxi_wlen;
+				saxi_wvalid     <= '0;
 			end
 
 			if (write_state[W_IDLE] && write_next[W_ADDR])
@@ -643,53 +615,53 @@ end
 	reg	[7:0]	data_cnt	=	0;
 	always_ff @(posedge sys_clk) begin
 		if(sys_rst) begin
-			s_axi_wd_wdata   <= '0;
-			s_axi_wd_wstrb   <= '0;
-			s_axi_wd_wlast   <= '0;
-			s_axi_wd_wvalid  <= '0;
+			saxi_wd_wdata   <= '0;
+			saxi_wd_wstrb   <= '0;
+			saxi_wd_wlast   <= '0;
+			saxi_wd_wvalid  <= '0;
 			data_cnt	<=	0;
 		end else begin
 			if (write_state[W_DATA]) begin 
 				if (flag_sum) begin 
-					if (!s_axi_wd_wready) begin 
-						s_axi_wd_wdata	<=	DATASUM;
+					if (!saxi_wd_wready) begin 
+						saxi_wd_wdata	<=	DATASUM;
 						data_cnt	<=	1;
 					end						
-					else if (s_axi_wd_wvalid && s_axi_wd_wready) begin
+					else if (saxi_wd_wvalid && saxi_wd_wready) begin
 						if (C_AXI_DATA_WIDTH < 32)
-							s_axi_wd_wdata	<=	DATASUM[31 - data_cnt*C_AXI_DATA_WIDTH -: C_AXI_DATA_WIDTH];
+							saxi_wd_wdata	<=	DATASUM[31 - data_cnt*C_AXI_DATA_WIDTH -: C_AXI_DATA_WIDTH];
 						else
-							s_axi_wd_wdata	<=	DATASUM;
+							saxi_wd_wdata	<=	DATASUM;
 						data_cnt	<=	data_cnt + 1;
 					end						
 					else
 						data_cnt	<=	data_cnt;
 					
 					if (C_AXI_DATA_WIDTH < 32) begin 
-						s_axi_wd_wvalid	<=	data_cnt <= s_axi_wlen;
-						s_axi_wd_wlast	<=	(data_cnt == s_axi_wlen) && s_axi_wd_wvalid && s_axi_wd_wready;						
+						saxi_wd_wvalid	<=	data_cnt <= saxi_wlen;
+						saxi_wd_wlast	<=	(data_cnt == saxi_wlen) && saxi_wd_wvalid && saxi_wd_wready;						
 					end
 					else begin 
-						s_axi_wd_wvalid	<=	(data_cnt == 1) && !s_axi_wd_wready;
-						s_axi_wd_wlast	<=	(data_cnt == 1) && !s_axi_wd_wready;						
+						saxi_wd_wvalid	<=	(data_cnt == 1) && !saxi_wd_wready;
+						saxi_wd_wlast	<=	(data_cnt == 1) && !saxi_wd_wready;						
 					end					
 				end
 				else begin 
-					if (s_axi_wd_wvalid && s_axi_wd_wready)
+					if (saxi_wd_wvalid && saxi_wd_wready)
 						data_cnt	<=	data_cnt + 1;
 					else
 						data_cnt	<=	data_cnt;
 
-					s_axi_wd_wdata	<=	data_cnt;
-					s_axi_wd_wvalid	<=	1;
-					s_axi_wd_wlast	<=	(data_cnt == s_axi_wlen);										
+					saxi_wd_wdata	<=	data_cnt;
+					saxi_wd_wvalid	<=	1;
+					saxi_wd_wlast	<=	(data_cnt == saxi_wlen);										
 				end
 			end
 			else begin 
-				s_axi_wd_wdata   <= '0;
-				s_axi_wd_wstrb   <= '0;
-				s_axi_wd_wlast   <= '0;
-				s_axi_wd_wvalid  <= '0;
+				saxi_wd_wdata   <= '0;
+				saxi_wd_wstrb   <= '0;
+				saxi_wd_wlast   <= '0;
+				saxi_wd_wvalid  <= '0;
 				data_cnt	<=	0;
 			end
 		end
@@ -697,20 +669,20 @@ end
 
 	always_ff @(posedge sys_clk) begin
 			if(sys_rst) begin
-				 s_axi_wb_bready  <= '0;
+				 saxi_wb_bready  <= '0;
 			end else begin
 				 if (write_state[W_RESP])
-				 	s_axi_wb_bready	<=	s_axi_wb_bvalid;
+				 	saxi_wb_bready	<=	saxi_wb_bvalid;
 				 else
-				 	s_axi_wb_bready	<=	0;
+				 	saxi_wb_bready	<=	0;
 			end
 		end	
 
 	always_ff @(posedge sys_clk) begin
 			if(sys_rst) begin
-				m_axi_wd_wready  <= '0;
+				maxi_wd_wready  <= '0;
 			end else begin
-				m_axi_wd_wready	 <= m_axi_wd_wvalid;
+				maxi_wd_wready	 <= maxi_wd_wvalid;
 			end
 		end			
 endmodule

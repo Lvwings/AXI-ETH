@@ -52,49 +52,49 @@ module RX_UDP#(
     input   sys_rst,  // synchronous reset active high
 
 // AXI write address channel signals
-   	input                               axi_wready, // Indicates slave is ready to accept a 
-   	output [C_AXI_ID_WIDTH-1:0]         axi_wid,    // Write ID
-   	output [C_AXI_ADDR_WIDTH-1:0]       axi_waddr,  // Write address
-   	output [7:0]                        axi_wlen,   // Write Burst Length
-   	output [2:0]                        axi_wsize,  // Write Burst size
-   	output [1:0]                        axi_wburst, // Write Burst type
-   	output [1:0]                        axi_wlock,  // Write lock type
-   	output [3:0]                        axi_wcache, // Write Cache type
-   	output [2:0]                        axi_wprot,  // Write Protection type
-   	output                              axi_wvalid, // Write address valid
+   	input                               maxi_wready, // Indicates slave is ready to accept a 
+   	output [C_AXI_ID_WIDTH-1:0]         maxi_wid,    // Write ID
+   	output [C_AXI_ADDR_WIDTH-1:0]       maxi_waddr,  // Write address
+   	output [7:0]                        maxi_wlen,   // Write Burst Length
+   	output [2:0]                        maxi_wsize,  // Write Burst size
+   	output [1:0]                        maxi_wburst, // Write Burst type
+   	output [1:0]                        maxi_wlock,  // Write lock type
+   	output [3:0]                        maxi_wcache, // Write Cache type
+   	output [2:0]                        maxi_wprot,  // Write Protection type
+   	output                              maxi_wvalid, // Write address valid
   
 // AXI write data channel signals
-   	input                               axi_wd_wready,  // Write data ready
-   	output [C_AXI_DATA_WIDTH-1:0]       axi_wd_wdata,    // Write data
-   	output [C_AXI_DATA_WIDTH/8-1:0]     axi_wd_wstrb,    // Write strobes
-   	output                              axi_wd_wlast,    // Last write transaction   
-   	output                              axi_wd_wvalid,   // Write valid
+   	input                               maxi_wd_wready,  // Write data ready
+   	output [C_AXI_DATA_WIDTH-1:0]       maxi_wd_wdata,    // Write data
+   	output [C_AXI_DATA_WIDTH/8-1:0]     maxi_wd_wstrb,    // Write strobes
+   	output                              maxi_wd_wlast,    // Last write transaction   
+   	output                              maxi_wd_wvalid,   // Write valid
   
 // AXI write response channel signals
-   	input  [C_AXI_ID_WIDTH-1:0]         axi_wb_bid,     // Response ID
-   	input  [1:0]                        axi_wb_bresp,   // Write response
-   	input                               axi_wb_bvalid,  // Write reponse valid
-   	output                              axi_wb_bready,  // Response ready
+   	input  [C_AXI_ID_WIDTH-1:0]         maxi_wb_bid,     // Response ID
+   	input  [1:0]                        maxi_wb_bresp,   // Write response
+   	input                               maxi_wb_bvalid,  // Write reponse valid
+   	output                              maxi_wb_bready,  // Response ready
   
 // AXI read address channel signals
-   	input                               axi_rready,     // Read address ready
-   	output [C_AXI_ID_WIDTH-1:0]         axi_rid,        // Read ID
-   	output [C_AXI_ADDR_WIDTH-1:0]       axi_raddr,      // Read address
-   	output [7:0]                        axi_rlen,       // Read Burst Length
-   	output [2:0]                        axi_rsize,      // Read Burst size
-   	output [1:0]                        axi_rburst,     // Read Burst type
-   	output [1:0]                        axi_rlock,      // Read lock type
-   	output [3:0]                        axi_rcache,     // Read Cache type
-   	output [2:0]                        axi_rprot,      // Read Protection type
-   	output                              axi_rvalid,     // Read address valid
+   	input                               maxi_rready,     // Read address ready
+   	output [C_AXI_ID_WIDTH-1:0]         maxi_rid,        // Read ID
+   	output [C_AXI_ADDR_WIDTH-1:0]       maxi_raddr,      // Read address
+   	output [7:0]                        maxi_rlen,       // Read Burst Length
+   	output [2:0]                        maxi_rsize,      // Read Burst size
+   	output [1:0]                        maxi_rburst,     // Read Burst type
+   	output [1:0]                        maxi_rlock,      // Read lock type
+   	output [3:0]                        maxi_rcache,     // Read Cache type
+   	output [2:0]                        maxi_rprot,      // Read Protection type
+   	output                              maxi_rvalid,     // Read address valid
   
 // AXI read data channel signals   
-   	input  [C_AXI_ID_WIDTH-1:0]         axi_rd_bid,     // Response ID
-   	input  [1:0]                        axi_rd_rresp,   // Read response
-   	input                               axi_rd_rvalid,  // Read reponse valid
-   	input  [C_AXI_DATA_WIDTH-1:0]       axi_rd_rdata,   // Read data
-   	input                               axi_rd_rlast,   // Read last
-   	output                              axi_rd_rready,   // Read Response ready
+   	input  [C_AXI_ID_WIDTH-1:0]         maxi_rd_bid,     // Response ID
+   	input  [1:0]                        maxi_rd_rresp,   // Read response
+   	input                               maxi_rd_rvalid,  // Read reponse valid
+   	input  [C_AXI_DATA_WIDTH-1:0]       maxi_rd_rdata,   // Read data
+   	input                               maxi_rd_rlast,   // Read last
+   	output                              maxi_rd_rready,   // Read Response ready
 
 	// AXIS RX RGMII
     input   [7:0]   					rgmii_rx_data,
@@ -176,7 +176,7 @@ module RX_UDP#(
 									WRITE_RESPONSE = 4'd7,
 									WRITE_TIME_OUT = 4'd8;
 	//	use one-hot encode								
-   	reg [8:0]                       m_write_state      =   0,
+   	(* keep="true" *)	reg [8:0]                       m_write_state      =   0,
 									m_write_next       =   0;
 
 	reg [WATCH_DOG_WIDTH : 0]       wt_watch_dog_cnt =   0;          
@@ -184,10 +184,10 @@ module RX_UDP#(
 
    	reg [7:0]                       write_data_cnt   =   0;
 
-   //	rx_wd_wdata : combine rgmii_rx_data into axi_wd_wdata according to C_AXI_DATA_WIDTH
+   //	rx_wd_wdata : combine rgmii_rx_data into maxi_wd_wdata according to C_AXI_DATA_WIDTH
    reg 	[C_AXI_DATA_WIDTH-1:0]      rx_wd_wdata	=	0;  
 
-    //	rx_wd_cnt : the counter of rgmii_rx_data make up single axi_wd_wdata, begin with 0   
+    //	rx_wd_cnt : the counter of rgmii_rx_data make up single maxi_wd_wdata, begin with 0   
     wire	[AXI_SIZE : 0]				rx_wd_cnt;
 //*****************************************************************************
 // RGMII Internal register and wire declarations
@@ -328,21 +328,21 @@ module RX_UDP#(
 			end
 
 			m_write_state[WRITE_ADDR]	:	begin 
-				if (axi_wvalid && axi_wready)
+				if (maxi_wvalid && maxi_wready)
 					m_write_next[WRITE_DATA]		=	1;
 				else
 					m_write_next[WRITE_ADDR]		=	1;
 			end
 
 			m_write_state[WRITE_DATA] :	begin 
-				if (axi_wd_wvalid && axi_wd_wready && axi_wd_wlast)
+				if (maxi_wd_wvalid && maxi_wd_wready && maxi_wd_wlast)
 					m_write_next[WRITE_RESPONSE]	=	1;
 				else
 					m_write_next[WRITE_DATA]		=	1;
 			end
 
 			m_write_state[WRITE_RESPONSE]	:	begin 
-				if (axi_wb_bvalid && axi_wb_bready)
+				if (maxi_wb_bvalid && maxi_wb_bready)
 					m_write_next[WRITE_IDLE]		=	1;
 				else
 					m_write_next[WRITE_RESPONSE]	=	1;			
@@ -671,17 +671,17 @@ module RX_UDP#(
 		end
 	end	
 
-	assign	axi_wid		=	wr_wid;
-	assign	axi_waddr	=	wr_waddr;
-	assign	axi_wlen	=	wr_wlen;
-	assign	axi_wsize	=	AXI_SIZE;
-	assign	axi_wburst	=	C_AXI_BURST_TYPE;
-	assign	axi_wvalid	=	wr_wvalid;
+	assign	maxi_wid		=	wr_wid;
+	assign	maxi_waddr	=	wr_waddr;
+	assign	maxi_wlen	=	wr_wlen;
+	assign	maxi_wsize	=	AXI_SIZE;
+	assign	maxi_wburst	=	C_AXI_BURST_TYPE;
+	assign	maxi_wvalid	=	wr_wvalid;
 
 	// Not supported and hence assigned zeros
-	assign	axi_wlock	=	2'b0;
-	assign	axi_wcache	=	4'b0;
-	assign	axi_wprot	=	3'b0;
+	assign	maxi_wlock	=	2'b0;
+	assign	maxi_wcache	=	4'b0;
+	assign	maxi_wprot	=	3'b0;
 //*****************************************************************************
 // Write channel data signals
 //*****************************************************************************	
@@ -690,8 +690,8 @@ module RX_UDP#(
 		if (m_write_state[WRITE_IDLE])
 			write_data_cnt	<=	0;
 		else if (m_write_state[WRITE_ADDR] && m_write_next[WRITE_DATA])
-			write_data_cnt	<=	axi_wlen;
-		else if (axi_wd_wvalid && axi_wd_wready)
+			write_data_cnt	<=	maxi_wlen;
+		else if (maxi_wd_wvalid && maxi_wd_wready)
 			write_data_cnt	<=	write_data_cnt - 1;
 		else
 			write_data_cnt	<=	write_data_cnt;
@@ -718,7 +718,7 @@ module RX_UDP#(
 		if (m_write_state[WRITE_DATA] && m_write_next[WRITE_DATA]) begin 
 		 	if ((rx_wd_cnt == 0) && udp_word_cnt >= AXI_ADDR_INC)
 		 		wd_wvalid	<=	1;			
-		 	else if (axi_wd_wready)
+		 	else if (maxi_wd_wready)
 		 		wd_wvalid	<=	0;	
 		 	else
 		 		wd_wvalid	<=	wd_wvalid;	
@@ -750,21 +750,21 @@ module RX_UDP#(
 			wd_wstrb	<=	0;
 	end
 
-	assign	axi_wd_wdata	=	wd_wdata;
-	assign	axi_wd_wstrb	=	wd_wstrb;
-	assign	axi_wd_wlast	=	wd_wlast;
-	assign	axi_wd_wvalid	=	wd_wvalid;
+	assign	maxi_wd_wdata	=	wd_wdata;
+	assign	maxi_wd_wstrb	=	wd_wstrb;
+	assign	maxi_wd_wlast	=	wd_wlast;
+	assign	maxi_wd_wvalid	=	wd_wvalid;
 //*****************************************************************************
 // Write channel response signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
 		if (m_write_state[WRITE_RESPONSE])
-			wb_bready <= axi_wb_bvalid;
+			wb_bready <= maxi_wb_bvalid;
 		else
 			wb_bready <= 0;
 	end
 
-	assign	axi_wb_bready	=	wb_bready;
+	assign	maxi_wb_bready	=	wb_bready;
 //*****************************************************************************
 // Read Internal parameter declarations
 //*****************************************************************************							
@@ -800,14 +800,14 @@ module RX_UDP#(
 			end
 
 			read_state[READ_ADDR]	:	begin 
-				if (axi_rvalid && axi_rready)
+				if (maxi_rvalid && maxi_rready)
 					read_next[READ_DATA]		=	1;
 				else
 					read_next[READ_ADDR]		=	1;
 			end
 
 			read_state[READ_DATA] :	begin 
-				if (axi_rd_rvalid && axi_rd_rready && axi_rd_rlast)
+				if (maxi_rd_rvalid && maxi_rd_rready && maxi_rd_rlast)
 					read_next[READ_IDLE]		=	1;
 				else
 					read_next[READ_DATA]		=	1;
@@ -843,13 +843,13 @@ module RX_UDP#(
 //*****************************************************************************	
 	//	rr_raddr	rr_rvalid
 	always @(posedge sys_clk) begin
-		 if (axi_rd_rlast && axi_rd_rvalid && axi_rd_rready) begin
+		 if (maxi_rd_rlast && maxi_rd_rvalid && maxi_rd_rready) begin
 		 	rr_raddr	<=	rr_raddr	+	AXI_ADDR_INC;
 		 	rr_rvalid	<=	0;
 		 end
 		 else if (read_next[READ_ADDR]) begin 
 		 	rr_raddr	<=	rr_raddr;
-		 	rr_rvalid	<=	axi_rready;
+		 	rr_rvalid	<=	maxi_rready;
 		 end
 		 else begin 
 		 	rr_raddr	<=	rr_raddr;
@@ -895,26 +895,26 @@ module RX_UDP#(
 	//	end
 	//end	
 
-	assign	axi_rid		=	rr_rid;
-	assign	axi_raddr	=	rr_raddr;
-	assign	axi_rlen	=	rr_rlen;
-	assign	axi_rsize	=	AXI_SIZE;
-	assign	axi_rburst	=	C_AXI_BURST_TYPE;
-	assign	axi_rvalid	=	rr_rvalid;
+	assign	maxi_rid		=	rr_rid;
+	assign	maxi_raddr	=	rr_raddr;
+	assign	maxi_rlen	=	rr_rlen;
+	assign	maxi_rsize	=	AXI_SIZE;
+	assign	maxi_rburst	=	C_AXI_BURST_TYPE;
+	assign	maxi_rvalid	=	rr_rvalid;
 
 	// Not supported and hence assigned zeros
-	assign	axi_rlock	=	2'b0;
-	assign	axi_rcache	=	4'b0;
-	assign	axi_rprot	=	3'b0;	
+	assign	maxi_rlock	=	2'b0;
+	assign	maxi_rcache	=	4'b0;
+	assign	maxi_rprot	=	3'b0;	
 //*****************************************************************************
 // Read channel data signals
 //*****************************************************************************
 	always @(posedge sys_clk) begin
 		if (read_next[READ_DATA])
-			rd_rready <= axi_rd_rvalid;
+			rd_rready <= maxi_rd_rvalid;
 		else
 			rd_rready <= 0;
 	end
 
-	assign	axi_rd_rready	=	rd_rready;	
+	assign	maxi_rd_rready	=	rd_rready;	
 endmodule : RX_UDP

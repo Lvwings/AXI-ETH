@@ -36,109 +36,111 @@ module ETH_TOP#(
 	    // DATA FLAG
 	    parameter FLAG_MOTOR           =   32'hE1EC_0C0D,
 	    parameter FLAG_AD              =   32'hAD86_86DA,
+	    parameter FLAG_ETHLOOP         =   32'hEEBA_EEBA,
 	    // ETH receive channel setting
 	    parameter C_ADDR_SUMOFFSET     =   32'h0000_1000,
 	    parameter C_ADDR_MOTOR2ETH     =   32'h0000_0000,
 	    parameter C_ADDR_AD2ETH        =   32'h1000_0000,
+	    parameter C_ADDR_ETHLOOP       =   32'h2000_0000,
 	     // ETH send channel setting
 	    parameter C_ADDR_ETH2MOTOR     =   32'hE000_0000,
-	    parameter C_ADDR_ETH2AD        =   32'hF000_0000 	           
+	    parameter C_ADDR_ETH2AD        =   32'hF000_0000           
     )
 	(
 	    input   sys_clk,
 	    input   sys_rst,  // synchronous reset active high
 
 	// AXI write address channel signals
-	   	input                               m_axi_wready, // Indicates slave is ready to accept a 
-	   	output [C_AXI_ID_WIDTH-1:0]         m_axi_wid,    // Write ID
-	   	output [C_AXI_ADDR_WIDTH-1:0]       m_axi_waddr,  // Write address
-	   	output [7:0]                        m_axi_wlen,   // Write Burst Length
-	   	output [2:0]                        m_axi_wsize,  // Write Burst size
-	   	output [1:0]                        m_axi_wburst, // Write Burst type
-	   	output [1:0]                        m_axi_wlock,  // Write lock type
-	   	output [3:0]                        m_axi_wcache, // Write Cache type
-	   	output [2:0]                        m_axi_wprot,  // Write Protection type
-	   	output                              m_axi_wvalid, // Write address valid
-	   	output [3:0]						m_axi_wqos,
+	   	input                               maxi_wready, // Indicates slave is ready to accept a 
+	   	output [C_AXI_ID_WIDTH-1:0]         maxi_wid,    // Write ID
+	   	output [C_AXI_ADDR_WIDTH-1:0]       maxi_waddr,  // Write address
+	   	output [7:0]                        maxi_wlen,   // Write Burst Length
+	   	output [2:0]                        maxi_wsize,  // Write Burst size
+	   	output [1:0]                        maxi_wburst, // Write Burst type
+	   	output [1:0]                        maxi_wlock,  // Write lock type
+	   	output [3:0]                        maxi_wcache, // Write Cache type
+	   	output [2:0]                        maxi_wprot,  // Write Protection type
+	   	output                              maxi_wvalid, // Write address valid
+	   	output [3:0]						maxi_wqos,
 	  
 	// AXI write data channel signals
-	   	input                               m_axi_wd_wready,  // Write data ready
-	   	output [C_AXI_DATA_WIDTH-1:0]       m_axi_wd_wdata,    // Write data
-	   	output [C_AXI_DATA_WIDTH/8-1:0]     m_axi_wd_wstrb,    // Write strobes
-	   	output                              m_axi_wd_wlast,    // Last write transaction   
-	   	output                              m_axi_wd_wvalid,   // Write valid
+	   	input                               maxi_wd_wready,  // Write data ready
+	   	output [C_AXI_DATA_WIDTH-1:0]       maxi_wd_wdata,    // Write data
+	   	output [C_AXI_DATA_WIDTH/8-1:0]     maxi_wd_wstrb,    // Write strobes
+	   	output                              maxi_wd_wlast,    // Last write transaction   
+	   	output                              maxi_wd_wvalid,   // Write valid
 	  
 	// AXI write response channel signals
-	   	input  [C_AXI_ID_WIDTH-1:0]         m_axi_wb_bid,     // Response ID
-	   	input  [1:0]                        m_axi_wb_bresp,   // Write response
-	   	input                               m_axi_wb_bvalid,  // Write reponse valid
-	   	output                              m_axi_wb_bready,  // Response ready
+	   	input  [C_AXI_ID_WIDTH-1:0]         maxi_wb_bid,     // Response ID
+	   	input  [1:0]                        maxi_wb_bresp,   // Write response
+	   	input                               maxi_wb_bvalid,  // Write reponse valid
+	   	output                              maxi_wb_bready,  // Response ready
 	  
 	// AXI read address channel signals
-	   	input                               m_axi_rready,     // Read address ready
-	   	output [C_AXI_ID_WIDTH-1:0]         m_axi_rid,        // Read ID
-	   	output [C_AXI_ADDR_WIDTH-1:0]       m_axi_raddr,      // Read address
-	   	output [7:0]                        m_axi_rlen,       // Read Burst Length
-	   	output [2:0]                        m_axi_rsize,      // Read Burst size
-	   	output [1:0]                        m_axi_rburst,     // Read Burst type
-	   	output [1:0]                        m_axi_rlock,      // Read lock type
-	   	output [3:0]                        m_axi_rcache,     // Read Cache type
-	   	output [2:0]                        m_axi_rprot,      // Read Protection type
-	   	output                              m_axi_rvalid,     // Read address valid
-	    output [3:0]						m_axi_rqos,
+	   	input                               maxi_rready,     // Read address ready
+	   	output [C_AXI_ID_WIDTH-1:0]         maxi_rid,        // Read ID
+	   	output [C_AXI_ADDR_WIDTH-1:0]       maxi_raddr,      // Read address
+	   	output [7:0]                        maxi_rlen,       // Read Burst Length
+	   	output [2:0]                        maxi_rsize,      // Read Burst size
+	   	output [1:0]                        maxi_rburst,     // Read Burst type
+	   	output [1:0]                        maxi_rlock,      // Read lock type
+	   	output [3:0]                        maxi_rcache,     // Read Cache type
+	   	output [2:0]                        maxi_rprot,      // Read Protection type
+	   	output                              maxi_rvalid,     // Read address valid
+	    output [3:0]						maxi_rqos,
 
 	// AXI read data channel signals   
-	   	input  [C_AXI_ID_WIDTH-1:0]         m_axi_rd_bid,     // Response ID
-	   	input  [1:0]                        m_axi_rd_rresp,   // Read response
-	   	input                               m_axi_rd_rvalid,  // Read reponse valid
-	   	input  [C_AXI_DATA_WIDTH-1:0]       m_axi_rd_rdata,   // Read data
-	   	input                               m_axi_rd_rlast,   // Read last
-	   	output                              m_axi_rd_rready,  // Read Response ready
+	   	input  [C_AXI_ID_WIDTH-1:0]         maxi_rd_bid,     // Response ID
+	   	input  [1:0]                        maxi_rd_rresp,   // Read response
+	   	input                               maxi_rd_rvalid,  // Read reponse valid
+	   	input  [C_AXI_DATA_WIDTH-1:0]       maxi_rd_rdata,   // Read data
+	   	input                               maxi_rd_rlast,   // Read last
+	   	output                              maxi_rd_rready,  // Read Response ready
 
 	// AXI write address channel signals
-	   	output                            	s_axi_wready, // Indicates slave is ready to accept a 
-	   	input [C_AXI_ID_WIDTH-1:0]        	s_axi_wid,    // Write ID
-	   	input [C_AXI_ADDR_WIDTH-1:0]      	s_axi_waddr,  // Write address
-	   	input [7:0]                       	s_axi_wlen,   // Write Burst Length
-	   	input [2:0]                       	s_axi_wsize,  // Write Burst size
-	   	input [1:0]                       	s_axi_wburst, // Write Burst type
-	   	input [1:0]                       	s_axi_wlock,  // Write lock type
-	   	input [3:0]                       	s_axi_wcache, // Write Cache type
-	   	input [2:0]                       	s_axi_wprot,  // Write Protection type
-	   	input                             	s_axi_wvalid, // Write address valid
-	  	input [3:0]							s_axi_wqos,
+	   	output                            	saxi_wready, // Indicates slave is ready to accept a 
+	   	input [C_AXI_ID_WIDTH-1:0]        	saxi_wid,    // Write ID
+	   	input [C_AXI_ADDR_WIDTH-1:0]      	saxi_waddr,  // Write address
+	   	input [7:0]                       	saxi_wlen,   // Write Burst Length
+	   	input [2:0]                       	saxi_wsize,  // Write Burst size
+	   	input [1:0]                       	saxi_wburst, // Write Burst type
+	   	input [1:0]                       	saxi_wlock,  // Write lock type
+	   	input [3:0]                       	saxi_wcache, // Write Cache type
+	   	input [2:0]                       	saxi_wprot,  // Write Protection type
+	   	input                             	saxi_wvalid, // Write address valid
+	  	input [3:0]							saxi_wqos,
 	// AXI write data channel signals
-	   	output                            	s_axi_wd_wready,  // Write data ready
-	   	input [C_AXI_DATA_WIDTH-1:0]      	s_axi_wd_wdata,    // Write data
-	   	input [C_AXI_DATA_WIDTH/8-1:0]    	s_axi_wd_wstrb,    // Write strobes
-	   	input                             	s_axi_wd_wlast,    // Last write transaction   
-	   	input                             	s_axi_wd_wvalid,   // Write valid
+	   	output                            	saxi_wd_wready,  // Write data ready
+	   	input [C_AXI_DATA_WIDTH-1:0]      	saxi_wd_wdata,    // Write data
+	   	input [C_AXI_DATA_WIDTH/8-1:0]    	saxi_wd_wstrb,    // Write strobes
+	   	input                             	saxi_wd_wlast,    // Last write transaction   
+	   	input                             	saxi_wd_wvalid,   // Write valid
 	  
 	// AXI write response channel signals
-	   	output  [C_AXI_ID_WIDTH-1:0]      	s_axi_wb_bid,     // Response ID
-	   	output  [1:0]                     	s_axi_wb_bresp,   // Write response
-	   	output                            	s_axi_wb_bvalid,  // Write reponse valid
-	   	input                             	s_axi_wb_bready,  // Response ready
+	   	output  [C_AXI_ID_WIDTH-1:0]      	saxi_wb_bid,     // Response ID
+	   	output  [1:0]                     	saxi_wb_bresp,   // Write response
+	   	output                            	saxi_wb_bvalid,  // Write reponse valid
+	   	input                             	saxi_wb_bready,  // Response ready
 	  
 	// AXI read address channel signals
-	   	output                            	s_axi_rready,     // Read address ready
-	   	input [C_AXI_ID_WIDTH-1:0]        	s_axi_rid,        // Read ID
-	   	input [C_AXI_ADDR_WIDTH-1:0]      	s_axi_raddr,      // Read address
-	   	input [7:0]                       	s_axi_rlen,       // Read Burst Length
-	   	input [2:0]                       	s_axi_rsize,      // Read Burst size
-	   	input [1:0]                       	s_axi_rburst,     // Read Burst type
-	   	input [1:0]                       	s_axi_rlock,      // Read lock type
-	   	input [3:0]                       	s_axi_rcache,     // Read Cache type
-	   	input [2:0]                       	s_axi_rprot,      // Read Protection type
-	   	input                             	s_axi_rvalid,     // Read address valid
-	  	input [3:0]							s_axi_rqos,
+	   	output                            	saxi_rready,     // Read address ready
+	   	input [C_AXI_ID_WIDTH-1:0]        	saxi_rid,        // Read ID
+	   	input [C_AXI_ADDR_WIDTH-1:0]      	saxi_raddr,      // Read address
+	   	input [7:0]                       	saxi_rlen,       // Read Burst Length
+	   	input [2:0]                       	saxi_rsize,      // Read Burst size
+	   	input [1:0]                       	saxi_rburst,     // Read Burst type
+	   	input [1:0]                       	saxi_rlock,      // Read lock type
+	   	input [3:0]                       	saxi_rcache,     // Read Cache type
+	   	input [2:0]                       	saxi_rprot,      // Read Protection type
+	   	input                             	saxi_rvalid,     // Read address valid
+	  	input [3:0]							saxi_rqos,
 	// AXI read data channel signals   
-	   	output  [C_AXI_ID_WIDTH-1:0]       	s_axi_rd_bid,     // Response ID
-	   	output  [1:0]                      	s_axi_rd_rresp,   // Read response
-	   	output                             	s_axi_rd_rvalid,  // Read reponse valid
-	   	output  [C_AXI_DATA_WIDTH-1:0]     	s_axi_rd_rdata,   // Read data
-	   	output                             	s_axi_rd_rlast,   // Read last
-	   	input                              	s_axi_rd_rready,   // Read Response ready
+	   	output  [C_AXI_ID_WIDTH-1:0]       	saxi_rd_bid,     // Response ID
+	   	output  [1:0]                      	saxi_rd_rresp,   // Read response
+	   	output                             	saxi_rd_rvalid,  // Read reponse valid
+	   	output  [C_AXI_DATA_WIDTH-1:0]     	saxi_rd_rdata,   // Read data
+	   	output                             	saxi_rd_rlast,   // Read last
+	   	input                              	saxi_rd_rready,   // Read Response ready
 
 		// AXIS RX RGMII
 	    input   [7:0]   					rgmii_rx_data,
@@ -160,56 +162,56 @@ module ETH_TOP#(
 	wire		trig_arp;
 
 	// AXI write address channel signals
-	   	wire                              t_axi_wready; // Indicates slave is ready to accept a 
-	   	wire [C_AXI_ID_WIDTH-1:0]         t_axi_wid;    // Write ID
-	   	wire [C_AXI_ADDR_WIDTH-1:0]       t_axi_waddr;  // Write address
-	   	wire [7:0]                        t_axi_wlen;   // Write Burst Length
-	   	wire [2:0]                        t_axi_wsize;  // Write Burst size
-	   	wire [1:0]                        t_axi_wburst; // Write Burst type
-	   	wire [1:0]                        t_axi_wlock;  // Write lock type
-	   	wire [3:0]                        t_axi_wcache; // Write Cache type
-	   	wire [2:0]                        t_axi_wprot;  // Write Protection type
-	   	wire                              t_axi_wvalid; // Write address valid
-	   	wire [3:0]						  t_axi_wqos;
+	   	wire                              taxi_wready; // Indicates slave is ready to accept a 
+	   	wire [C_AXI_ID_WIDTH-1:0]         taxi_wid;    // Write ID
+	   	wire [C_AXI_ADDR_WIDTH-1:0]       taxi_waddr;  // Write address
+	   	wire [7:0]                        taxi_wlen;   // Write Burst Length
+	   	wire [2:0]                        taxi_wsize;  // Write Burst size
+	   	wire [1:0]                        taxi_wburst; // Write Burst type
+	   	wire [1:0]                        taxi_wlock;  // Write lock type
+	   	wire [3:0]                        taxi_wcache; // Write Cache type
+	   	wire [2:0]                        taxi_wprot;  // Write Protection type
+	   	wire                              taxi_wvalid; // Write address valid
+	   	wire [3:0]						  taxi_wqos;
 	  
 	// AXI write data channel signals
-	   	wire                              t_axi_wd_wready;  // Write data ready
-	   	wire [C_AXI_DATA_WIDTH-1:0]       t_axi_wd_wdata;    // Write data
-	   	wire [C_AXI_DATA_WIDTH/8-1:0]     t_axi_wd_wstrb;    // Write strobes
-	   	wire                              t_axi_wd_wlast;    // Last write transaction   
-	   	wire                              t_axi_wd_wvalid;   // Write valid
+	   	wire                              taxi_wd_wready;  // Write data ready
+	   	wire [C_AXI_DATA_WIDTH-1:0]       taxi_wd_wdata;    // Write data
+	   	wire [C_AXI_DATA_WIDTH/8-1:0]     taxi_wd_wstrb;    // Write strobes
+	   	wire                              taxi_wd_wlast;    // Last write transaction   
+	   	wire                              taxi_wd_wvalid;   // Write valid
 	  
 	// AXI write response channel signals
-	   	wire  [C_AXI_ID_WIDTH-1:0]         t_axi_wb_bid;     // Response ID
-	   	wire  [1:0]                        t_axi_wb_bresp;   // Write response
-	   	wire                               t_axi_wb_bvalid;  // Write reponse valid
-	   	wire                               t_axi_wb_bready;  // Response ready
+	   	wire  [C_AXI_ID_WIDTH-1:0]         taxi_wb_bid;     // Response ID
+	   	wire  [1:0]                        taxi_wb_bresp;   // Write response
+	   	wire                               taxi_wb_bvalid;  // Write reponse valid
+	   	wire                               taxi_wb_bready;  // Response ready
 	  
 	// AXI read address channel signals
-	   	wire                               t_axi_rready;     // Read address ready
-	   	wire [C_AXI_ID_WIDTH-1:0]          t_axi_rid;        // Read ID
-	   	wire [C_AXI_ADDR_WIDTH-1:0]        t_axi_raddr;      // Read address
-	   	wire [7:0]                         t_axi_rlen;       // Read Burst Length
-	   	wire [2:0]                         t_axi_rsize;      // Read Burst size
-	   	wire [1:0]                         t_axi_rburst;     // Read Burst type
-	   	wire [1:0]                         t_axi_rlock;      // Read lock type
-	   	wire [3:0]                         t_axi_rcache;     // Read Cache type
-	   	wire [2:0]                         t_axi_rprot;      // Read Protection type
-	   	wire                               t_axi_rvalid;     // Read address valid
-	    wire [3:0]						   t_axi_rqos;
+	   	wire                               taxi_rready;     // Read address ready
+	   	wire [C_AXI_ID_WIDTH-1:0]          taxi_rid;        // Read ID
+	   	wire [C_AXI_ADDR_WIDTH-1:0]        taxi_raddr;      // Read address
+	   	wire [7:0]                         taxi_rlen;       // Read Burst Length
+	   	wire [2:0]                         taxi_rsize;      // Read Burst size
+	   	wire [1:0]                         taxi_rburst;     // Read Burst type
+	   	wire [1:0]                         taxi_rlock;      // Read lock type
+	   	wire [3:0]                         taxi_rcache;     // Read Cache type
+	   	wire [2:0]                         taxi_rprot;      // Read Protection type
+	   	wire                               taxi_rvalid;     // Read address valid
+	    wire [3:0]						   taxi_rqos;
 
 	// AXI read data channel signals   
-	   	wire  [C_AXI_ID_WIDTH-1:0]         t_axi_rd_bid;     // Response ID
-	   	wire  [1:0]                        t_axi_rd_rresp;   // Read response
-	   	wire                               t_axi_rd_rvalid;  // Read reponse valid
-	   	wire  [C_AXI_DATA_WIDTH-1:0]       t_axi_rd_rdata;   // Read data
-	   	wire                               t_axi_rd_rlast;   // Read last
-	   	wire                               t_axi_rd_rready;  // Read Response ready
+	   	wire  [C_AXI_ID_WIDTH-1:0]         taxi_rd_bid;     // Response ID
+	   	wire  [1:0]                        taxi_rd_rresp;   // Read response
+	   	wire                               taxi_rd_rvalid;  // Read reponse valid
+	   	wire  [C_AXI_DATA_WIDTH-1:0]       taxi_rd_rdata;   // Read data
+	   	wire                               taxi_rd_rlast;   // Read last
+	   	wire                               taxi_rd_rready;  // Read Response ready
 
 
 
-	assign	m_axi_wqos	=	0;
-	assign	m_axi_rqos	=	0;
+	assign	maxi_wqos	=	0;
+	assign	maxi_rqos	=	0;
 
 	RX_UDP #(
 			.FPGA_MAC(FPGA_MAC),
@@ -224,49 +226,51 @@ module ETH_TOP#(
 			.WATCH_DOG_WIDTH(WATCH_DOG_WIDTH),
 			.FLAG_MOTOR(FLAG_MOTOR),
 			.FLAG_AD(FLAG_AD),
+			.FLAG_ETHLOOP(FLAG_ETHLOOP),
 			.C_ADDR_SUMOFFSET(C_ADDR_SUMOFFSET),
 			.C_ADDR_MOTOR2ETH(C_ADDR_MOTOR2ETH),
 			.C_ADDR_AD2ETH(C_ADDR_AD2ETH),
 			.C_ADDR_ETH2MOTOR(C_ADDR_ETH2MOTOR),
-			.C_ADDR_ETH2AD(C_ADDR_ETH2AD)
+			.C_ADDR_ETH2AD(C_ADDR_ETH2AD),
+			.C_ADDR_ETHLOOP(C_ADDR_ETHLOOP)
 		) inst_RX_UDP (
 			.sys_clk          (sys_clk),
 			.sys_rst          (sys_rst),
-			.axi_wready       (m_axi_wready),
-			.axi_wid          (m_axi_wid),
-			.axi_waddr        (m_axi_waddr),
-			.axi_wlen         (m_axi_wlen),
-			.axi_wsize        (m_axi_wsize),
-			.axi_wburst       (m_axi_wburst),
-			.axi_wlock        (m_axi_wlock),
-			.axi_wcache       (m_axi_wcache),
-			.axi_wprot        (m_axi_wprot),
-			.axi_wvalid       (m_axi_wvalid),
-			.axi_wd_wready    (m_axi_wd_wready),
-			.axi_wd_wdata     (m_axi_wd_wdata),
-			.axi_wd_wstrb     (m_axi_wd_wstrb),
-			.axi_wd_wlast     (m_axi_wd_wlast),
-			.axi_wd_wvalid    (m_axi_wd_wvalid),
-			.axi_wb_bid       (m_axi_wb_bid),
-			.axi_wb_bresp     (m_axi_wb_bresp),
-			.axi_wb_bvalid    (m_axi_wb_bvalid),
-			.axi_wb_bready    (m_axi_wb_bready),
-			.axi_rready       (m_axi_rready),
-			.axi_rid          (m_axi_rid),
-			.axi_raddr        (m_axi_raddr),
-			.axi_rlen         (m_axi_rlen),
-			.axi_rsize        (m_axi_rsize),
-			.axi_rburst       (m_axi_rburst),
-			.axi_rlock        (m_axi_rlock),
-			.axi_rcache       (m_axi_rcache),
-			.axi_rprot        (m_axi_rprot),
-			.axi_rvalid       (m_axi_rvalid),
-			.axi_rd_bid       (m_axi_rd_bid),
-			.axi_rd_rresp     (m_axi_rd_rresp),
-			.axi_rd_rvalid    (m_axi_rd_rvalid),
-			.axi_rd_rdata     (m_axi_rd_rdata),
-			.axi_rd_rlast     (m_axi_rd_rlast),
-			.axi_rd_rready    (m_axi_rd_rready),
+			.maxi_wready      (maxi_wready),
+			.maxi_wid         (maxi_wid),
+			.maxi_waddr       (maxi_waddr),
+			.maxi_wlen        (maxi_wlen),
+			.maxi_wsize       (maxi_wsize),
+			.maxi_wburst      (maxi_wburst),
+			.maxi_wlock       (maxi_wlock),
+			.maxi_wcache      (maxi_wcache),
+			.maxi_wprot       (maxi_wprot),
+			.maxi_wvalid      (maxi_wvalid),
+			.maxi_wd_wready   (maxi_wd_wready),
+			.maxi_wd_wdata    (maxi_wd_wdata),
+			.maxi_wd_wstrb    (maxi_wd_wstrb),
+			.maxi_wd_wlast    (maxi_wd_wlast),
+			.maxi_wd_wvalid   (maxi_wd_wvalid),
+			.maxi_wb_bid      (maxi_wb_bid),
+			.maxi_wb_bresp    (maxi_wb_bresp),
+			.maxi_wb_bvalid   (maxi_wb_bvalid),
+			.maxi_wb_bready   (maxi_wb_bready),
+			.maxi_rready      (maxi_rready),
+			.maxi_rid         (maxi_rid),
+			.maxi_raddr       (maxi_raddr),
+			.maxi_rlen        (maxi_rlen),
+			.maxi_rsize       (maxi_rsize),
+			.maxi_rburst      (maxi_rburst),
+			.maxi_rlock       (maxi_rlock),
+			.maxi_rcache      (maxi_rcache),
+			.maxi_rprot       (maxi_rprot),
+			.maxi_rvalid      (maxi_rvalid),
+			.maxi_rd_bid      (maxi_rd_bid),
+			.maxi_rd_rresp    (maxi_rd_rresp),
+			.maxi_rd_rvalid   (maxi_rd_rvalid),
+			.maxi_rd_rdata    (maxi_rd_rdata),
+			.maxi_rd_rlast    (maxi_rd_rlast),
+			.maxi_rd_rready   (maxi_rd_rready),
 			.rgmii_rx_data    (rgmii_rx_data),
 			.rgmii_rx_valid   (rgmii_rx_valid),
 			.rgmii_rx_last    (rgmii_rx_last),
@@ -291,49 +295,51 @@ module ETH_TOP#(
 			.WATCH_DOG_WIDTH(WATCH_DOG_WIDTH),
 			.FLAG_MOTOR(FLAG_MOTOR),
 			.FLAG_AD(FLAG_AD),
+			.FLAG_ETHLOOP(FLAG_ETHLOOP),
 			.C_ADDR_SUMOFFSET(C_ADDR_SUMOFFSET),
 			.C_ADDR_MOTOR2ETH(C_ADDR_MOTOR2ETH),
 			.C_ADDR_AD2ETH(C_ADDR_AD2ETH),
+			.C_ADDR_ETHLOOP(C_ADDR_ETHLOOP),
 			.C_ADDR_ETH2MOTOR(C_ADDR_ETH2MOTOR),
 			.C_ADDR_ETH2AD(C_ADDR_ETH2AD)
 		) inst_TX_UDP (
 			.sys_clk          (sys_clk),
 			.sys_rst          (sys_rst),
-			.axi_wready       (s_axi_wready),
-			.axi_wid          (s_axi_wid),
-			.axi_waddr        (s_axi_waddr),
-			.axi_wlen         (s_axi_wlen),
-			.axi_wsize        (s_axi_wsize),
-			.axi_wburst       (s_axi_wburst),
-			.axi_wlock        (s_axi_wlock),
-			.axi_wcache       (s_axi_wcache),
-			.axi_wprot        (s_axi_wprot),
-			.axi_wvalid       (s_axi_wvalid),
-			.axi_wd_wready    (s_axi_wd_wready),
-			.axi_wd_wdata     (s_axi_wd_wdata),
-			.axi_wd_wstrb     (s_axi_wd_wstrb),
-			.axi_wd_wlast     (s_axi_wd_wlast),
-			.axi_wd_wvalid    (s_axi_wd_wvalid),
-			.axi_wb_bid       (s_axi_wb_bid),
-			.axi_wb_bresp     (s_axi_wb_bresp),
-			.axi_wb_bvalid    (s_axi_wb_bvalid),
-			.axi_wb_bready    (s_axi_wb_bready),
-			.axi_rready       (s_axi_rready),
-			.axi_rid          (s_axi_rid),
-			.axi_raddr        (s_axi_raddr),
-			.axi_rlen         (s_axi_rlen),
-			.axi_rsize        (s_axi_rsize),
-			.axi_rburst       (s_axi_rburst),
-			.axi_rlock        (s_axi_rlock),
-			.axi_rcache       (s_axi_rcache),
-			.axi_rprot        (s_axi_rprot),
-			.axi_rvalid       (s_axi_rvalid),
-			.axi_rd_bid       (s_axi_rd_bid),
-			.axi_rd_rresp     (s_axi_rd_rresp),
-			.axi_rd_rvalid    (s_axi_rd_rvalid),
-			.axi_rd_rdata     (s_axi_rd_rdata),
-			.axi_rd_rlast     (s_axi_rd_rlast),
-			.axi_rd_rready    (s_axi_rd_rready),
+			.saxi_wready      (saxi_wready),
+			.saxi_wid         (saxi_wid),
+			.saxi_waddr       (saxi_waddr),
+			.saxi_wlen        (saxi_wlen),
+			.saxi_wsize       (saxi_wsize),
+			.saxi_wburst      (saxi_wburst),
+			.saxi_wlock       (saxi_wlock),
+			.saxi_wcache      (saxi_wcache),
+			.saxi_wprot       (saxi_wprot),
+			.saxi_wvalid      (saxi_wvalid),
+			.saxi_wd_wready   (saxi_wd_wready),
+			.saxi_wd_wdata    (saxi_wd_wdata),
+			.saxi_wd_wstrb    (saxi_wd_wstrb),
+			.saxi_wd_wlast    (saxi_wd_wlast),
+			.saxi_wd_wvalid   (saxi_wd_wvalid),
+			.saxi_wb_bid      (saxi_wb_bid),
+			.saxi_wb_bresp    (saxi_wb_bresp),
+			.saxi_wb_bvalid   (saxi_wb_bvalid),
+			.saxi_wb_bready   (saxi_wb_bready),
+			.saxi_rready      (saxi_rready),
+			.saxi_rid         (saxi_rid),
+			.saxi_raddr       (saxi_raddr),
+			.saxi_rlen        (saxi_rlen),
+			.saxi_rsize       (saxi_rsize),
+			.saxi_rburst      (saxi_rburst),
+			.saxi_rlock       (saxi_rlock),
+			.saxi_rcache      (saxi_rcache),
+			.saxi_rprot       (saxi_rprot),
+			.saxi_rvalid      (saxi_rvalid),
+			.saxi_rd_bid      (saxi_rd_bid),
+			.saxi_rd_rresp    (saxi_rd_rresp),
+			.saxi_rd_rvalid   (saxi_rd_rvalid),
+			.saxi_rd_rdata    (saxi_rd_rdata),
+			.saxi_rd_rlast    (saxi_rd_rlast),
+			.saxi_rd_rready   (saxi_rd_rready),
 			.rgmii_tx_data    (rgmii_tx_data),
 			.rgmii_tx_valid   (rgmii_tx_valid),
 			.rgmii_tx_last    (rgmii_tx_last),
@@ -344,6 +350,4 @@ module ETH_TOP#(
 			.trig_package_rst (trig_package_rst),
 			.trig_arp         (trig_arp)
 		);
-
-
 endmodule
