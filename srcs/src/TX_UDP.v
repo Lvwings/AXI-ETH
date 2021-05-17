@@ -110,7 +110,13 @@ module TX_UDP#(
 	input								trig_arp	
     );
 
-
+//*****************************************************************************
+// local reset
+//*****************************************************************************			
+	reg							local_reset	=	1'b0;
+	always @(posedge sys_clk) begin
+		local_reset	<=	sys_rst;
+	end
 //*****************************************************************************
 // AXI Internal register and wire declarations
 //*****************************************************************************
@@ -184,7 +190,7 @@ module TX_UDP#(
 									WRITE_TIME_OUT = 4'd8,
 									TX_ARP         = 4'd9;									
 	//	use one-hot encode								
-   		(* keep="true" *) reg [9:0]                       write_state      =   0,
+   	reg [9:0]                       write_state      =   0,
 									write_next       =   0;
 
 	reg [WATCH_DOG_WIDTH : 0]       wt_watch_dog_cnt=   0;          
@@ -192,12 +198,12 @@ module TX_UDP#(
 									trig_arp_start	=	1'b0;
 
 	//	data sum will be transfered before data
- 	(* keep="true" *) reg [3:0]						flag_data_sum	 =	 0;
+ 	reg [3:0]						flag_data_sum	 =	 0;
 
    	reg [7:0]                       write_data_cnt   =   0;
 
     //	tx_wd_cnt : the counter of rgmii_rx_data make up single saxi_wd_wdata, begin with 0   
-  	(* keep="true" *) reg	[AXI_SIZE-1 : 0]				tx_wd_cnt = 0;
+  	reg	[AXI_SIZE-1 : 0]				tx_wd_cnt = 0;
 
 //*****************************************************************************
 // RGMII Internal register and wire declarations
@@ -252,7 +258,7 @@ module TX_UDP#(
 		//	arp
 	reg [223:0] arp_temp      =	0;   
 		//	counter
-	(* keep="true" *) reg [15:0]  tx_word_cnt   =	0;
+	reg [15:0]  tx_word_cnt   =	0;
 		// ports
 	reg [7:0]   o_rgmii_data  =   0;  
 	reg         o_rgmii_valid =   1'b0;
@@ -274,7 +280,7 @@ module TX_UDP#(
 // cks signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
-		if (sys_rst  || rgmii_tx_last) begin
+		if (local_reset  || rgmii_tx_last) begin
 			ipcks_sum  <= 0;
 			ipcks_over <= 0;
 		end
@@ -301,7 +307,7 @@ module TX_UDP#(
 	end	
 
 	always @(posedge sys_clk) begin
-		if (sys_rst  || rgmii_tx_last) begin
+		if (local_reset  || rgmii_tx_last) begin
 			udpcks_sum	<=	0;
 			udpcks_over	<=	0;
 		end
@@ -330,15 +336,14 @@ module TX_UDP#(
 // Write channel control signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
-			trig_udp_start <= 0;
-		end else begin
+		if (local_reset)
+			trig_udp_start	<=	0;
+		else
 			trig_udp_start <= saxi_wvalid;
-		end
 	end
 
 	always @(posedge sys_clk) begin
-		if (sys_rst || flag_arp_over)
+		if (local_reset || flag_arp_over)
 			trig_arp_start	<=	0;
 		else if (trig_arp)
 			trig_arp_start	<=	1;
@@ -349,7 +354,7 @@ module TX_UDP#(
 // Write data state machine
 //*****************************************************************************
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
+		if(local_reset) begin
 			write_state <= 1;
 		end else begin
 			write_state	<= write_next;
@@ -442,7 +447,7 @@ module TX_UDP#(
 // IP protocol signals
 //*****************************************************************************		
 	always @(posedge sys_clk) begin
-		if(sys_rst || trig_package_rst) begin
+		if(local_reset || trig_package_rst) begin
 			package_cnt <= 0;
 		end else begin
 			if (write_state[WRITE_RESPONSE] && write_next[WRITE_IDLE] && (flag_data_sum == 1))
@@ -453,7 +458,7 @@ module TX_UDP#(
 	end
 
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
+		if(local_reset) begin
 			ip_identif <= 0;
 		end else begin
 			if (rgmii_tx_last)
@@ -466,11 +471,9 @@ module TX_UDP#(
 // RGMII TX signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
+		if(local_reset) begin
 			flag_data_sum  <= 0;
-			trig_udp_cks_d <= 0;
 			data_sum       <= 0;
-			eth_loop_data  <= 0;
 			udp_temp[63:48]<= FPGA_SP;
 			udp_temp[47:32]<= FPGA_DP;
 		end else begin
@@ -777,14 +780,10 @@ module TX_UDP#(
 // Watch dog signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
-			 wt_watch_dog_cnt	<=	0;
-		end else begin
-			 if (write_state != write_next)
-			 	wt_watch_dog_cnt	<=	0;
-			 else
-			 	wt_watch_dog_cnt	<=	wt_watch_dog_cnt + 1; 
-		end
+		 if (write_state != write_next)
+		 	wt_watch_dog_cnt	<=	0;
+		 else
+		 	wt_watch_dog_cnt	<=	wt_watch_dog_cnt + 1; 
 	end
 
 //*****************************************************************************
@@ -800,37 +799,25 @@ module TX_UDP#(
 
 	//	wr_wid
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
-			 wr_wid	<=	0;
-		end else begin
-			 if (saxi_wvalid && saxi_wready)
-			 	wr_wid	<=	saxi_wid;
-			 else
-			 	wr_wid	<=	wr_wid;
-		end
+		 if (saxi_wvalid && saxi_wready)
+		 	wr_wid	<=	saxi_wid;
+		 else
+		 	wr_wid	<=	wr_wid;
 	end
 
 	//	wr_wlen	:	INCR bursts
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
-			 wr_wlen	<=	0;
-		end else begin
-			 if (saxi_wvalid && saxi_wready)
-			 	wr_wlen	<=	saxi_wlen + 1;
-			 else
-			 	wr_wlen	<=	wr_wlen;
-		end
+		 if (saxi_wvalid && saxi_wready)
+		 	wr_wlen	<=	saxi_wlen + 1;
+		 else
+		 	wr_wlen	<=	wr_wlen;
 	end	
 
 	//	wr_wburst	
 	//	C_EN_WRAP_TRANS :0 INCR bursts :support burst_len max to 256 (default) 	
 	//	C_EN_WRAP_TRANS :1 WRAP bursts :support burst_len 2,4,8,16 				
 	always @(posedge sys_clk) begin
-		if(sys_rst) begin
-			wr_wburst	<=	0;
-		end else begin
 			wr_wburst	<=	saxi_wburst;	
-		end
 	end	
 
 	//	output
