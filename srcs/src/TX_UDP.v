@@ -339,7 +339,7 @@ module TX_UDP#(
 		if (local_reset)
 			trig_udp_start	<=	0;
 		else
-			trig_udp_start <= saxi_wvalid;
+			trig_udp_start  <= saxi_wvalid && write_state[WRITE_IDLE];
 	end
 
 	always @(posedge sys_clk) begin
@@ -865,7 +865,7 @@ module TX_UDP#(
 // Write channel response signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
-		if (write_next[WRITE_RESPONSE])
+		if (write_next[WRITE_RESPONSE] && write_state[WRITE_RESPONSE])
 			wb_bvalid <= 1;
 		else
 			wb_bvalid <= 0;

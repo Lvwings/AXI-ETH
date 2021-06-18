@@ -184,7 +184,7 @@ module RX_UDP#(
 									WRITE_RESPONSE = 4'd7,
 									WRITE_TIME_OUT = 4'd8;
 	//	use one-hot encode								
-   	reg [8:0]                       m_write_state      =   0,
+    (* keep="true" *)  	reg [8:0]                       m_write_state      =   0,
 									m_write_next       =   0;
 
 	reg [WATCH_DOG_WIDTH : 0]       wt_watch_dog_cnt =   0;          
@@ -270,7 +270,7 @@ module RX_UDP#(
 		if (local_reset)
 			trig_write_start	<=	0;
 		else
-			trig_write_start <= rgmii_rx_valid;
+			trig_write_start <= rgmii_rx_valid && !rgmii_rx_last &&  m_write_state[WRITE_IDLE];
 	end
 //*****************************************************************************
 // Write data state machine
@@ -294,7 +294,7 @@ module RX_UDP#(
 			end
 
 			m_write_state[RX_ETH_HEADER]	:	begin 
-				if (flag_frame_err || rgmii_rx_last)
+				if (flag_frame_err)
 					m_write_next[WRITE_IDLE]		=	1;
 				else if (flag_arp)
 					m_write_next[RX_ARP]			=	1;					
@@ -387,7 +387,7 @@ module RX_UDP#(
 				trig_package_reset   <= 0;
 
 				udp_word_cnt         <= 0;
-				o_rgmii_rx_ready     <= 0;
+				o_rgmii_rx_ready     <= rgmii_rx_valid && rgmii_rx_last;
 				rx_wd_wdata          <= 0;					
 			end
 
@@ -409,11 +409,13 @@ module RX_UDP#(
 					udp_word_cnt     <= 0;
 	            end
 				else begin
- 					o_rgmii_rx_ready	<=	rgmii_rx_valid && !rgmii_rx_last;
+ 					o_rgmii_rx_ready	<=	rgmii_rx_valid;
 					if (rgmii_rx_valid && rgmii_rx_ready)		
 						udp_word_cnt    <=  udp_word_cnt + 1;
 					else
 						udp_word_cnt    <=  udp_word_cnt;
+
+					flag_frame_err		<=	rgmii_rx_last;
 
 					case (udp_word_cnt) 
 						 // 接收以太网目的地址
@@ -453,7 +455,7 @@ module RX_UDP#(
 	                udp_word_cnt <= 0;
 	            end
 				else begin 
- 					o_rgmii_rx_ready	<=	rgmii_rx_valid && !rgmii_rx_last;
+ 					o_rgmii_rx_ready	<=	rgmii_rx_valid;
 					if (rgmii_rx_valid && rgmii_rx_ready)		
 						udp_word_cnt    <=  udp_word_cnt + 1;
 					else
@@ -507,7 +509,7 @@ module RX_UDP#(
 	                udp_word_cnt <= 0;
 	            end
 				else begin 
- 					o_rgmii_rx_ready	<=	rgmii_rx_valid && !rgmii_rx_last;
+ 					o_rgmii_rx_ready	<=	rgmii_rx_valid;
 					if (rgmii_rx_valid && rgmii_rx_ready)		
 						udp_word_cnt    <=  udp_word_cnt + 1;
 					else
@@ -554,7 +556,7 @@ module RX_UDP#(
 					udp_word_cnt <= 0;
 				end
 				else begin
- 					o_rgmii_rx_ready	<=	rgmii_rx_valid && !rgmii_rx_last;
+ 					o_rgmii_rx_ready	<=	rgmii_rx_valid;
 					if (rgmii_rx_valid && rgmii_rx_ready)		
 						udp_word_cnt    <=  udp_word_cnt + 1;
 					else
@@ -589,7 +591,7 @@ module RX_UDP#(
 
 			m_write_next[WRITE_DATA]	: begin 
 
-					o_rgmii_rx_ready	<=	rgmii_rx_valid && !rgmii_rx_last;
+					o_rgmii_rx_ready	<=	rgmii_rx_valid;
 					
 					if (udp_word_cnt <= rx_cmd_len) begin 
 						if (rgmii_rx_valid && rgmii_rx_ready) begin 
@@ -753,8 +755,8 @@ module RX_UDP#(
 // Write channel response signals
 //*****************************************************************************	
 	always @(posedge sys_clk) begin
-		if (m_write_state[WRITE_RESPONSE])
-			wb_bready <= maxi_wb_bvalid;
+		if (m_write_state[WRITE_RESPONSE] && m_write_next[WRITE_RESPONSE])
+			wb_bready <= 1;
 		else
 			wb_bready <= 0;
 	end

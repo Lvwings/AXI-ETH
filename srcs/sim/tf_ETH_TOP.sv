@@ -410,12 +410,13 @@ always  @ (posedge sys_clk) begin
 		if (IS_ARP) begin
 			if (DATA_CNT == 200) begin
 				DATA_CNT      <= 0;
+				rgmii_rx_last <= 0;
 				ARP_OUT_D     <=  ARP_OUT;
 				FRAME_ARP_CNT <=  FRAME_ARP_CNT + 1;
 			end
 			else if (DATA_CNT >= 63) begin
 				DATA_CNT       <=   DATA_CNT + 1;
-				rgmii_rx_last  <=  DATA_CNT == 63;
+				rgmii_rx_last  <=  DATA_CNT >= 63;
 				rgmii_rx_valid <=  	0;
 			end
 			else begin      
@@ -449,12 +450,13 @@ always  @ (posedge sys_clk) begin
 		else if (IS_ICMP) begin
 			if (DATA_CNT == 200) begin
 				DATA_CNT       <= 0;
+				rgmii_rx_last <= 0;
 				ICMP_OUT_D     <=  ICMP_OUT;
 				FRAME_ICMP_CNT <=  FRAME_ICMP_CNT + 1;
 			end
 			else if (DATA_CNT >= 77) begin
 				DATA_CNT       <=   DATA_CNT + 1;
-				rgmii_rx_last  <=  DATA_CNT == 77;
+				rgmii_rx_last  <=  DATA_CNT >= 77;
 				rgmii_rx_valid <=  0;
 			end
 			else begin
@@ -488,12 +490,13 @@ always  @ (posedge sys_clk) begin
 		else if (IS_UDP) begin
 			 if (DATA_CNT == 200) begin
 				DATA_CNT       <= 0;
+				rgmii_rx_last <= 0;
 				DATA_OUT_D     <=  DATA_OUT;               
 				FRAME_UDP_CNT  <=  FRAME_UDP_CNT + 1;                
 			end
 			else if (DATA_CNT >= 68 ) begin
 				rgmii_rx_valid <=  0;
-				rgmii_rx_last  <=  DATA_CNT == 68; 
+				rgmii_rx_last  <=  DATA_CNT >= 68; 
 				DATA_CNT       <=   DATA_CNT + 1;
 			end
 			else begin
